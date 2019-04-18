@@ -3,6 +3,7 @@ import getNormalizedListenerArguments from './getNormalizedListenerArguments';
 import getNormalizedPortFromArguments from './getNormalizedPortFromArguments';
 import getNormalizedRequestFromPath from './getNormalizedRequestFromPath';
 import https from 'https';
+import { parse } from 'url';
 
 const { close, listen } = https.Server.prototype;
 
@@ -27,11 +28,13 @@ export default class Server extends https.Server {
 		});
 
 		this.on('request', (request, response) => {
+			const { pathname } = parse(request.url);
+
 			this._requests.forEach(_request => {
 				if (
 					(!_request.method || _request.method === request.method) &&
 					(!_request.port || _request.port === request.connection.server.port) &&
-					(!_request.glob || _request.glob.test(request.url)) &&
+					(!_request.glob || _request.glob.test(pathname)) &&
 					(typeof _request.callback === 'function')
 				) {
 					_request.callback.call(this, request, response);
@@ -130,7 +133,7 @@ export default class Server extends https.Server {
 	}
 
 	/**
-	* Attaches a request listener for when a path is matched to run a callback.
+	* Attaches a request listener so that whenever a path is matched a callback is run.
 	* @param {String} [path] - The method, port, and pathname of the request.
 	* @param {Function} callback - The function to run when a path is matched.
 	*/
@@ -149,7 +152,7 @@ export default class Server extends https.Server {
 	}
 
 	/**
-	* Detaches a request listener for when a path is matched to run a callback.
+	* Detaches a request listener so that whenever a path is matched a callback is no longer run.
 	* @param {String} path - The method, port, and pathname of the request.
 	* @param {Function} [callback] - The function to run when a path is matched.
 	*/

@@ -1,6 +1,6 @@
 {
   "name": "httpe",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A zero-dependency http & https module supporting both protocols & multiple ports simultaneously",
   "author": "Jonathan Neal <jonathantneal@hotmail.com>",
   "license": "CC0-1.0",
@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "build": "rollup --config --silent",
-    "postbuild": "gzip-size index.js",
+    "postbuild": "g1=$(gzip-size --level 0 index.js); g2=$(gzip-size --level 9 index.js); echo Bundle size: $g1 / $g2 gzip",
     "prepublishOnly": "npm test && npm run build",
     "test": "npm run test:eclint && npm run test:eslint",
     "test:eclint": "eclint check",
