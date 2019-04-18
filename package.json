@@ -1,0 +1,41 @@
+{
+  "name": "httpe",
+  "version": "0.1.0",
+  "description": "A zero-dependency http & https module supporting both protocols & multiple ports simultaneously",
+  "author": "Jonathan Neal <jonathantneal@hotmail.com>",
+  "license": "CC0-1.0",
+  "repository": "jonathantneal/httpe",
+  "homepage": "https://github.com/jonathantneal/httpe#readme",
+  "bugs": "https://github.com/jonathantneal/httpe/issues",
+  "main": "index.js",
+  "module": "index.mjs",
+  "files": [
+    "index.js",
+    "index.mjs"
+  ],
+  "scripts": {
+    "build": "rollup --config --silent",
+    "postbuild": "gzip-size index.js",
+    "prepublishOnly": "npm test && npm run build",
+    "test": "npm run test:eclint && npm run test:eslint",
+    "test:eclint": "eclint check",
+    "test:eslint": "eslint src/**/*.mjs --cache --ignore-path .gitignore"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/preset-env": "^7.4.3",
+    "babel-eslint": "^10.0.1",
+    "eclint": "^2.8.1",
+    "eslint": "^5.16.0",
+    "gzip-size": "^5.1.0",
+    "postcss-preset-env": "^6.6.0",
+    "rollup": "^1.10.0",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-terser": "^4.0.4"
+  },
+  "keywords": []
+}
