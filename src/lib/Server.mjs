@@ -1,11 +1,10 @@
 import allowCrossProtocolConnections from './allowCrossProtocolConnections';
-import getNormalizedListenerArguments from './getNormalizedListenerArguments';
+import close from './close';
 import getNormalizedPortFromArguments from './getNormalizedPortFromArguments';
-import getNormalizedRequestFromPath from './getNormalizedRequestFromPath';
 import https from 'https';
 import { parse } from 'url';
-
-const { close, listen } = https.Server.prototype;
+import { isPortAvailable, getFirstAvailablePort } from './availablePortUtils';
+import listen from './listen';
 
 /**
 * @name Server
@@ -51,51 +50,7 @@ export default class Server extends https.Server {
 	*/
 
 	listen () {
-		const [ options, callback ] = getNormalizedListenerArguments(arguments);
-
-		this.port = options.port || this.port;
-
-		new Promise(
-			resolve => this.close(resolve)
-		).then(
-			() => Promise.all(
-				[].concat(this.port).map(
-					port => new Promise(
-						resolve => {
-							const server = allowCrossProtocolConnections(
-								new https.Server(this)
-							);
-
-							listen.call(
-								server,
-								{ ...options, port },
-								() => {
-									resolve(
-										Object.assign(server, {
-											_events: this._events,
-											_originalEvents: server._events,
-											port
-										})
-									);
-								}
-							);
-						}
-					)
-				)
-			)
-		).then(
-			servers => {
-				this._servers.splice(this._servers.length, 0, ...servers);
-
-				this.emit('listening');
-			}
-		);
-
-		if (typeof callback === 'function') {
-			this.on('listening', callback);
-		}
-
-		return this;
+		return listen.apply(this, arguments);
 	}
 
 	/**
@@ -105,77 +60,29 @@ export default class Server extends https.Server {
 	*/
 
 	close (callback) {
-		Promise.all(
-			this._servers.splice(0).map(
-				server => new Promise(resolve => {
-					server._events = server._originalEvents;
-
-					close.call(server, resolve);
-
-					if (server._socket) {
-						server._socket.end();
-					}
-				})
-			)
-		).then(
-			servers => {
-				if (servers.length) {
-					close.call(this);
-				}
-
-				if (typeof callback === 'function') {
-					callback.call(this);
-				}
-			}
-		);
-
-		return this;
+		return close.call(this, callback);
 	}
 
 	/**
-	* Attaches a request listener so that whenever a path is matched a callback is run.
-	* @param {String} [path] - The method, port, and pathname of the request.
-	* @param {Function} callback - The function to run when a path is matched.
+	* Returns a promise for whether the port is available for a connection.
+	* @param {Number} port - The port for the connection.
+	* @return {Promise} A promise for whether the port is availale for a connection.
 	*/
 
-	request (path, callback) {
-		const [ method, port, glob ] = getNormalizedRequestFromPath(typeof path === 'string' ? path : '');
-
-		this._requests.push({
-			method,
-			port,
-			glob,
-			callback: typeof path === 'function' ? path : callback
-		});
-
-		return this;
+	isPortAvailable () {
+		return isPortAvailable(...arguments);
 	}
 
 	/**
-	* Detaches a request listener so that whenever a path is matched a callback is no longer run.
-	* @param {String} path - The method, port, and pathname of the request.
-	* @param {Function} [callback] - The function to run when a path is matched.
+	* Returns a promise for the first available port for a connection.
+	* @description Return a promise for the first available port for a connection.
+	* @param {Number} port - The port for the connection.
+	* @param {...Number} ignorePorts - The ports to be ignored for the connection.
+	* @return {Promise} A promise for the first available port for a connection.
 	*/
 
-	removeRequest (path) {
-		const [ method, port, glob ] = getNormalizedRequestFromPath(path);
-		const [, callback] = arguments;
-
-		for (
-			let index = this._requests.length, _request;
-			(_request = this._requests[--index]);
-		) {
-			if (
-				(!method || method === _request.method) &&
-				(!port || port === _request.method) &&
-				(String(glob) === String(_request.glob)) &&
-				(!callback || callback === _request.callback)
-			) {
-				this._requests.splice(index, 1);
-			}
-		}
-
-		return this;
+	getFirstAvailablePort () {
+		return getFirstAvailablePort(...arguments);
 	}
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "httpe",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A zero-dependency http & https module supporting both protocols & multiple ports simultaneously",
   "author": "Jonathan Neal <jonathantneal@hotmail.com>",
   "license": "CC0-1.0",
