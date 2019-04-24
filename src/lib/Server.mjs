@@ -103,15 +103,6 @@ export default class Server extends https.Server {
 	}
 }
 
-/**
-* @external http.Server
-* @see https://nodejs.org/api/http.html#http_class_http_server
-* @external https.Server
-* @see https://nodejs.org/api/https.html#https_class_https_server
-* @external tls.Server
-* @see https://nodejs.org/api/tls.html#tls_class_tls_server
-*/
-
 function updateServerPort (server, desiredPort) {
 	const port = Array.isArray(desiredPort)
 		? desiredPort.map(
@@ -133,3 +124,12 @@ function updateServerPort (server, desiredPort) {
 		)
 	: port;
 }
+
+/**
+* @external http.Server
+* @see https://nodejs.org/api/http.html#http_class_http_server
+* @external https.Server
+* @see https://nodejs.org/api/https.html#https_class_https_server
+* @external tls.Server
+* @see https://nodejs.org/api/tls.html#tls_class_tls_server
+*/

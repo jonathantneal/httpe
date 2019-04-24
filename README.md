@@ -4,7 +4,7 @@
 [![Build Status][cli-img]][cli-url]
 [![Support Chat][git-img]][git-url]
 
-[httpe] is a 2.36 KB zero-dependency [`http`] and [`https`] replacement module
+[httpe] is a 2.42 KB zero-dependency [`http`] and [`https`] replacement module
 that supports multiple protocols and ports simultaneously. It generates SSL
 certificates if they are missing, and includes URL and path glob tooling as
 well as charset and mimetype detection.
@@ -204,18 +204,24 @@ Each `response` is identical to
 [`http.ServerResponse`](https://nodejs.org/api/http.html#http_class_http_serverresponse)
 with the addition of the following chainable properties.
 
-### response.send
+### response.set()
 
-The `send` function sends an HTTP response and ends the response.
+The `set` function sets an HTTP response body and ends the response.
 
 ```js
-res.send('<p>some html</p>');
+res.set('<p>some html</p>');
 ```
 
-A status may also be specified.
+The status code may also be specified.
 
 ```js
-res.send(404, 'Sorry, we cannot find that!');
+res.set(404, 'Sorry, we cannot find that!');
+```
+
+The response body may also be a stream.
+
+```js
+res.set(400, someStream);
 ```
 
 ### response.redirect
@@ -226,17 +232,17 @@ The `redirect` function redirects to a new URL.
 response.redirect('/foo/bar');
 ```
 
-A specified status may also be specified.
+A status code may also be specified.
 
 ```js
 response.redirect(301, 'http://example.com');
 ```
 
-If not specified, the status defaults to `302`.
+If not specified, the status code defaults to `302`.
 
 ### response.setHeader
 
-The `setHeader` function sets header fields.
+The `setHeader` function sets HTTP response headers.
 
 ```js
 response.setHeader('Content-Type', 'text/plain');
@@ -261,7 +267,7 @@ res.status(403).end();
 ```
 
 ```js
-res.status(400).send('Bad Request');
+res.status(400).set('Bad Request');
 ```
 
 ```js
