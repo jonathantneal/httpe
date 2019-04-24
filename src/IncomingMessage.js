@@ -1,5 +1,5 @@
 import { parse as parseAsURL, URLSearchParams } from 'url';
-import getRequestFromPath from './util/getRequestFromPath';
+import getRequestFromPath from './lib/getRequestFromPath';
 import http from 'http';
 import mimeTypes from 'mime-types';
 
