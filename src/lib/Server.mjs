@@ -1,9 +1,8 @@
-import allowCrossProtocolConnections from './allowCrossProtocolConnections';
+import allowCrossProtocolConnections from './util/allowCrossProtocolConnections';
 import close from './close';
-import getNormalizedPortFromArguments from './getNormalizedPortFromArguments';
+import generateCertificate from './util/generateCertificate';
+import isPortAvailable from './util/isPortAvailable';
 import https from 'https';
-import { parse } from 'url';
-import { isPortAvailable, getFirstAvailablePort } from './availablePortUtils';
 import listen from './listen';
 
 /**
@@ -12,34 +11,55 @@ import listen from './listen';
 * @extends https.Server
 * @classdesc Creates a new HTTP & HTTPS Server that supports multiple ports.
 * @param {Object} [options] - The options for the server
+* @param {Array|Number} [options.port] - The desired port or ports to use.
+* @param {Boolean} [options.useAvailablePort] - Whether to use the first available port from the desired port or ports.
+* @param {Boolean} [options.listen] - The overriding desired port or ports to use if they are available, otherwising using the first available.
+* @param {Buffer|String} [options.cert] - The certificate; when missing along with `options.key` will cause a new certificate to be generated.
+* @param {Buffer|String} [options.key] - The key; when missing along with `options.cert` will cause a new certificate to be generated.
 * @param {Function} [connectionListener] - The listener bound to all connections.
 * @return {Server}
 */
 
 export default class Server extends https.Server {
 	constructor () {
-		super(...arguments);
+		// optional arguments
+		const [rawOptions, connectionListener] = arguments;
 
-		Object.assign(allowCrossProtocolConnections(this), {
-			_requests: [],
-			_servers: [],
-			port: getNormalizedPortFromArguments(arguments)
-		});
+		// options argument
+		const options = Object(rawOptions);
 
-		this.on('request', (request, response) => {
-			const { pathname } = parse(request.url);
+		super(options);
 
-			this._requests.forEach(_request => {
-				if (
-					(!_request.method || _request.method === request.method) &&
-					(!_request.port || _request.port === request.connection.server.port) &&
-					(!_request.glob || _request.glob.test(pathname)) &&
-					(typeof _request.callback === 'function')
-				) {
-					_request.callback.call(this, request, response);
-				}
-			});
-		});
+		// inner-servers
+		this._servers = [];
+
+		allowCrossProtocolConnections(this);
+
+		// port option
+		this.useAvailablePort = Boolean(typeof options.listen === 'number' || options.useAvailablePort);
+
+		updateServerPort(this, options.port);
+
+		// certificate option
+		if (!options.cert && !options.key) {
+			const certificate = generateCertificate();
+
+			Object.assign(this, certificate);
+		}
+
+		// listen option
+		if (options.listen) {
+			Array.isArray(options.listen)
+				? this.listen(...options.listen)
+			: typeof options.listen === 'boolean'
+				? this.listen()
+			: this.listen(options.listen);
+		}
+
+		// connectionListener argument
+		if (typeof connectionListener === 'function') {
+			this.on('request', connectionListener);
+		}
 	}
 
 	/**
@@ -50,7 +70,26 @@ export default class Server extends https.Server {
 	*/
 
 	listen () {
-		return listen.apply(this, arguments);
+		const [port, ...args] = arguments;
+
+		const portType = Object.prototype.toString.call(port);
+		const isPortType = portType === '[object Number]' || portType === '[object Promise]';
+
+		if (isPortType) {
+			updateServerPort(this, port);
+		}
+
+		if (this.useAvailablePort) {
+			Promise.resolve(this.port).then(
+				() => isPortType
+					? listen.call(this, this.port, ...args)
+				: listen.call(this, arguments)
+			);
+		} else {
+			listen.call(this, arguments);
+		}
+
+		return this;
 	}
 
 	/**
@@ -62,28 +101,6 @@ export default class Server extends https.Server {
 	close (callback) {
 		return close.call(this, callback);
 	}
-
-	/**
-	* Returns a promise for whether the port is available for a connection.
-	* @param {Number} port - The port for the connection.
-	* @return {Promise} A promise for whether the port is availale for a connection.
-	*/
-
-	isPortAvailable () {
-		return isPortAvailable(...arguments);
-	}
-
-	/**
-	* Returns a promise for the first available port for a connection.
-	* @description Return a promise for the first available port for a connection.
-	* @param {Number} port - The port for the connection.
-	* @param {...Number} ignorePorts - The ports to be ignored for the connection.
-	* @return {Promise} A promise for the first available port for a connection.
-	*/
-
-	getFirstAvailablePort () {
-		return getFirstAvailablePort(...arguments);
-	}
 }
 
 /**
@@ -94,3 +111,25 @@ export default class Server extends https.Server {
 * @external tls.Server
 * @see https://nodejs.org/api/tls.html#tls_class_tls_server
 */
+
+function updateServerPort (server, desiredPort) {
+	const port = Array.isArray(desiredPort)
+		? desiredPort.map(
+			each => Number(each)
+		)
+	: Number(desiredPort) || [80, 443];
+
+	server.port = server.useAvailablePort
+		? Promise.resolve(server.port).then(
+			() => typeof port === 'number'
+				? isPortAvailable(port, true)
+			: Promise.all(
+				port.map(
+					each => isPortAvailable(each, true)
+				)
+			)
+		).then(
+			availablePort => server.port = availablePort
+		)
+	: port;
+}

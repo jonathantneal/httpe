@@ -1,4 +1,4 @@
-export default function getNormalizedListenerArguments (args) {
+export default function getListenerArgumentsFromArguments (args) {
 	const options = args.length === 0
 		? {}
 	: typeof args[0] === 'object' && args[0] !== null

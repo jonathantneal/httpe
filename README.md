@@ -4,9 +4,10 @@
 [![Build Status][cli-img]][cli-url]
 [![Support Chat][git-img]][git-url]
 
-[httpe] is a 1.89 KB zero-dependency [`http`] and [`https`] replacement module
-that supports multiple protocols and ports simultaneously. It includes updates
-for `request` and `response` functions to match [express] counterparts.
+[httpe] is a 2.36 KB zero-dependency [`http`] and [`https`] replacement module
+that supports multiple protocols and ports simultaneously. It generates SSL
+certificates if they are missing, and includes URL and path glob tooling as
+well as charset and mimetype detection.
 
 ```bash
 npm install httpe
@@ -19,15 +20,15 @@ const httpe = require('httpe');
 httpe.createServer().listen().on(
   'request',
   (request, res) => {
-    if (request.match('GET:80 /')) {
+    if (request.includes('GET:80 /')) {
       // Homepage: show a custom message
-      res.send('A request for the root on port 80 using the GET method');
-    } else if (request.match('/**.js')) {
+      res.set('A request for the root on port 80 using the GET method');
+    } else if (request.includes('/**.js')) {
       // JavaScript: show a confusing message
-      res.send(`eval does a body good`);
+      res.set(`eval does a body good`);
     } else {
       // Anything Else: show the method, port, and URL of the request
-      res.send(`${request.method}:${request.connection.server.port} ${request.pathname}`);
+      res.set(`${request.method}:${request.connection.server.port} ${request.pathname}`);
     }
   }
 );
@@ -40,7 +41,7 @@ It also supports initial configuration of the port.
 httpe.createServer({ port: 8080 }).listen();
 ```
 
-## httpe.createServer
+## httpe.createServer()
 
 The `createServer` method returns a new instance of a [`Server`](#httpe.Server).
 
@@ -50,14 +51,48 @@ server = httpe.createServer();
 
 Arguments are identical to
 [https.createServer](https://nodejs.org/api/https.html#https_https_createserver_options_requestlistener)
-with the addition of `port`, which specifies the port or ports to be used by
-the server.
+with the additions of; `port` which specifies the port or ports to be used by
+the server, `listen` which immediately starts the server, and
+`useAvailablePort` which instructs the server to use the first available port.
 
 ```js
 server = httpe.createServer({ port: 8080 });
 ```
 
-## httpe.Server
+```js
+// start the server immediately on port 8080
+server = httpe.createServer({ port: 8080, listen: true });
+```
+
+```js
+// start the server immediately on the first available port from 8080
+server = httpe.createServer({ port: 8080, listen: true, useAvailablePort: true });
+```
+
+When a number, `listen` defines the `port` _and_ instructs the server to use
+the first available port.
+
+```js
+// start the server immediately on the first available port from 8080
+server = httpe.createServer({ listen: 8080 });
+```
+
+### httpe.isPortAvailable()
+
+The `isPortAvailable` function returns a Promise for whether a port is
+available for a connection, with the option to use the next available port.
+
+```js
+// check port 80
+httpe.isPortAvailable(80).then(availablePort => {}, error => {});
+```
+
+```js
+// check any port from 80
+httpe.isPortAvailable(80, true).then(availablePort => {}, error => {});
+```
+
+## httpe.Server()
 
 The `Server` class creates a server on multiple protocols and ports
 simultaneously, and extends 
@@ -76,25 +111,6 @@ the server.
 server = new Server({ port: 8080 });
 ```
 
-### server.isPortAvailable
-
-The `isPortAvailable` function returns a Promise for whether a port is
-available for a connection.
-
-```js
-server.isPortAvailable(80).then(isPortAvailable => {});
-```
-
-### server.getFirstAvailablePort
-
-The `getFirstAvailablePort` function returns a Promise for the first available
-port for a connection. If the port is unavailable, the next port up will
-check for an available connection.
-
-```js
-server.getFirstAvailablePort(80).then(availablePort => {});
-```
-
 ---
 
 ## request
@@ -108,47 +124,79 @@ with the addition of properties available to new
 request.pathname; // the pathname does not include search params
 ```
 
-## request.match
+## request.includes()
 
-The `match` function returns whether a path matches the current request.
+The `includes` function returns whether a search pattern matches the current
+request.
 
 The path may contain a **method**, **port**, and **pathname** with globs.
 
 ```js
 server.request((req, res) => {
-  if (request.match('GET:80 /')) {
+  if (request.includes('GET:80 /')) {
     // runs whenever the root is requested on port 80 using the GET method
   }
 
-  if (request.match(':80 /')) {
+  if (request.includes(':80 /')) {
     // runs whenever the root is requested on port 80 using any method
   }
 
-  if (request.match('/')) {
+  if (request.includes('/')) {
     // runs whenever the root is requested on any port using any method
   }
 
-  if (request.match('GET /')) {
+  if (request.includes('GET /')) {
     // runs whenever the root is requested on any port using the GET method
   }
 
-  if (request.match('GET')) {
+  if (request.includes('GET')) {
     // runs whenever any path is requested on any port using the GET method
   }
 
-  if (request.match(':80')) {
-    // runs whenever any path is requested on port 80 using any method
+  if (request.includes(':80|443')) {
+    // runs whenever any path is requested on port 80 or 443 using any method
   }
 
-  if (request.match('/**.js')) {
+  if (request.includes('/**.js')) {
     // runs whenever any path ending in .js is requested on any port using any method
   }
 
-  if (request.match('/**/*')) {
+  if (request.includes('/**/*')) {
     // runs whenever a subdir path of any depth is requested on any port using any method
   }
 });
 ```
+
+### request.charset
+
+The `charset` property returns the default character set for the request
+pathname.
+
+```js
+// If the request.pathname is `/script.js`
+request.charset; // returns 'UTF-8'
+```
+
+### request.contentType
+
+The `contentType` property returns the default content type for the request
+pathname.
+
+```js
+// If the request.pathname is `/script.js`
+request.contentType; // returns 'application/javascript; charset=utf-8'
+```
+
+### request.mimeType
+
+The `mimeType` property returns the default mime type for the request pathname.
+
+```js
+// If the request.pathname is `/script.js`
+request.mimeType; // returns 'application/javascript'
+```
+
+---
 
 ## response
 
@@ -167,7 +215,7 @@ res.send('<p>some html</p>');
 A status may also be specified.
 
 ```js
-res.status(404, 'Sorry, we cannot find that!');
+res.send(404, 'Sorry, we cannot find that!');
 ```
 
 ### response.redirect
@@ -186,18 +234,18 @@ response.redirect(301, 'http://example.com');
 
 If not specified, the status defaults to `302`.
 
-### response.set
+### response.setHeader
 
-The `set` function sets header fields.
+The `setHeader` function sets header fields.
 
 ```js
-response.set('Content-Type', 'text/plain');
+response.setHeader('Content-Type', 'text/plain');
 ```
 
 Multiple fields may be specified at once.
 
 ```js
-response.set({
+response.setHeader({
   'Content-Type': 'text/plain',
   'Content-Length': '123',
   'ETag': '12345'

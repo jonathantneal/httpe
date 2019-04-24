@@ -11,11 +11,11 @@ export default function allowCrossProtocolConnections (server) {
 		_tlsConnectionListener: server._events.connection,
 		allowHalfOpen: true,
 		httpAllowHalfOpen: false,
-		port: Object(arguments[0]).port || 80,
-		timeout: 2 * 60 * 1000,
+		timeout: 2 * 60 * 1000
 	});
 
 	removeListener.call(server, 'connection', server._tlsConnectionListener);
+
 	on.call(server, 'connection', tlsConnectionListener);
 
 	return server;

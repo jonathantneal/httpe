@@ -1,11 +1,11 @@
-import allowCrossProtocolConnections from './allowCrossProtocolConnections';
-import getNormalizedListenerArguments from './getNormalizedListenerArguments';
+import allowCrossProtocolConnections from './util/allowCrossProtocolConnections';
+import getListenerArgumentsFromArguments from './util/getListenerArgumentsFromArguments';
 import https from 'https';
 import IncomingMessage from './IncomingMessage';
 import ServerResponse from './ServerResponse';
 
 export default function listen () {
-	const [ options, callback ] = getNormalizedListenerArguments(arguments);
+	const [ options, callback ] = getListenerArgumentsFromArguments(arguments);
 
 	this.port = options.port || this.port;
 

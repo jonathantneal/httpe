@@ -39,16 +39,20 @@ export default class ServerResponse extends http.ServerResponse {
 		return this;
 	}
 
-	set () {
-		const [fieldOrObject, value] = arguments;
+	setHeader () {
+		const [field, value] = arguments;
 
 		if (!this.finished) {
-			if (typeof fieldOrObject === 'string') {
-				this.setHeader(fieldOrObject, value);
-			} else {
-				for (const field in Object(fieldOrObject)) {
-					this.setHeader(field, fieldOrObject[field]);
+			if (arguments.length === 1) {
+				for (const name in Object(field)) {
+					const fieldValue = field[name];
+
+					if (fieldValue !== null && fieldValue !== undefined) {
+						this.setHeader(name, fieldValue);
+					}
 				}
+			} else if (value !== null && value !== undefined) {
+				http.ServerResponse.prototype.setHeader.call(this, field, value);
 			}
 		}
 
