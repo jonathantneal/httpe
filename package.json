@@ -1,6 +1,6 @@
 {
   "name": "httpe",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "A zero-dependency http & https module supporting both protocols & multiple ports simultaneously",
   "author": "Jonathan Neal <jonathantneal@hotmail.com>",
   "license": "CC0-1.0",
@@ -19,7 +19,7 @@
     "prepublishOnly": "npm test && npm run build",
     "test": "npm run test:eclint && npm run test:eslint",
     "test:eclint": "eclint check",
-    "test:eslint": "eslint src/**/*.mjs --cache --ignore-path .gitignore"
+    "test:eslint": "eslint src/**/*.js --cache --ignore-path .gitignore"
   },
   "engines": {
     "node": ">=8.0.0"

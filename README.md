@@ -4,7 +4,7 @@
 [![Build Status][cli-img]][cli-url]
 [![Support Chat][git-img]][git-url]
 
-[httpe] is a 2.44 KB zero-dependency [`http`] and [`https`] replacement module
+[httpe] is a 2.58 KB zero-dependency [`http`] and [`https`] replacement module
 that supports multiple protocols and ports simultaneously. It generates SSL
 certificates if they are missing, and includes URL and path glob tooling as
 well as charset and mimetype detection.

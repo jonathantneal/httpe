@@ -3,9 +3,9 @@ import assignServerOptions from '../lib/assignServerOptions';
 import IncomingMessage from '../IncomingMessage';
 import ServerResponse from '../ServerResponse';
 
-export default function constructor (server, args) {
+export default function constructor (...args) {
 	Object.assign(
-		allowCrossProtocolConnections(server),
+		allowCrossProtocolConnections(this),
 		{
 			_servers: [],
 			IncomingMessage,
@@ -20,15 +20,15 @@ export default function constructor (server, args) {
 	// options argument
 	const options = Object(args[0]);
 
-	assignServerOptions(server, options);
+	assignServerOptions(this, options);
 
 	// listen option
 	if (options.listen) {
-		server.listen();
+		this.listen();
 	}
 
 	// requestListener argument
 	if (typeof requestListener === 'function') {
-		server.on('request', requestListener);
+		this.on('request', requestListener);
 	}
 }

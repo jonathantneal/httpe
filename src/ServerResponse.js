@@ -1,72 +1,73 @@
 import http from 'http';
 
 export default class ServerResponse extends http.ServerResponse {
-	/**
-	* Set the HTTP response body and end the response.
-	* @param {Number} [status] - The HTTP response status code.
-	* @param {Number} [headers] - The HTTP response headers.
-	* @param {Number} [body] - The HTTP response body.
-	* @return {Server}
-	*/
-
-	set () {
-		const [status, headers, body] = arguments;
-
+	redirect () {
 		if (!this.finished) {
-			if (typeof status === 'string') {
-				// set('content')
-				this.end(status);
-			} else if (typeof status === 'number') {
-				this.statusCode = status;
+			const args = Array.prototype.slice.call(arguments, 0, 2);
+			const Location = args.pop();
+			const status = args.pop() || 302;
 
-				if (typeof headers === 'string') {
-					// set(200, 'content')
-					this.end(headers);
-				} else if (headers === Object(headers)) {
-					if (typeof headers.pipe === 'function') {
-						// set(200, stream);
-						headers.pipe(this);
-					} else {
-						this.setHeader(headers);
-
-						if (body === Object(body) && typeof body.pipe === 'function') {
-							// set(200, {}, stream)
-							body.pipe(this);
-						} else {
-							// set(200, {}, 'content')
-							this.end(typeof body === 'string' ? body : '');
-						}
-					}
-				}
-			} else if (status === Object(status)) {
-				if (typeof status.pipe === 'function') {
-					// set({}, stream);
-					status.pipe(this);
-				} else {
-					this.setHeader(status);
-
-					// set({}, 'content')
-					this.end(typeof headers === 'string' ? headers : '');
-				}
-			}
+			this.writeHead(status, { Location });
+			this.end();
 		}
 
 		return this;
 	}
 
-	redirect () {
-		const [statusOrPath, path] = arguments;
+	/**
+	* Set the HTTP response body and end the response.
+	* @param {Number} [status] - The HTTP response status code.
+	* @param {Number} [headers] - The HTTP response headers.
+	* @param {Buffer|Promise|*} [body] - The HTTP response body.
+	* @return {Server}
+	*/
 
+	set (...args) {
 		if (!this.finished) {
-			if (typeof statusOrPath === 'string') {
-				this.writeHead(302, {
-					Location: statusOrPath
-				});
-				this.end();
-			} else if (typeof statusOrPath === 'number' && typeof path === 'string') {
-				this.writeHead(statusOrPath, {
-					Location: path
-				});
+			const options = args.reduce(
+				(options, arg) => {
+					if (!('body' in options)) {
+						if (isThenable(arg) || isPipeable(arg)) {
+							return { ...options, body: arg };
+						} else if (!('headers' in options)) {
+							if (arg === Object(arg)) {
+								return { ...options, headers: arg };
+							} else if (!('status' in options)) {
+								if (typeof arg === 'number') {
+									return { ...options, status: arg };
+								}
+							}
+						}
+					}
+
+					return { ...options, body: arg };
+				},
+				{}
+			);
+
+			if ('status' in options) {
+				this.statusCode = options.status;
+			}
+
+			if ('headers' in options) {
+				this.setHeader(options.headers);
+			}
+
+			if ('body' in options) {
+				if (isPipeable(options.body)) {
+					options.body.pipe(this);
+				} else if (isThenable(options.body)) {
+					this.finished = true;
+
+					resolveBody(options.body).then(
+						body => {
+							this.end(body);
+						}
+					);
+				} else {
+					this.end(options.body);
+				}
+			} else {
 				this.end();
 			}
 		}
@@ -99,4 +100,25 @@ export default class ServerResponse extends http.ServerResponse {
 
 		return this;
 	}
+}
+
+
+function isThenable (value) {
+	return typeof Object(value).then === 'function'
+}
+
+function isPipeable (value) {
+	return typeof Object(value).pipe === 'function'
+}
+
+function resolveBody (value) {
+	return isThenable(value)
+		? value.then(resolveBody)
+	: toBodyString(value);
+}
+
+function toBodyString (value) {
+	return value === Object(value) && !Object.hasOwnProperty.call(value, 'toString')
+		? JSON.stringify(value)
+	: String(value)
 }

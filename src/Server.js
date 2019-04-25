@@ -22,7 +22,7 @@ export default class Server extends https.Server {
 	constructor () {
 		super();
 
-		constructor(this, arguments);
+		constructor.apply(this, arguments);
 	}
 
 	listen () {

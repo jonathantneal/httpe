@@ -2,7 +2,7 @@ import generateCertificate from '../generateCertificate';
 import updateServerPort from './updateServerPort';
 
 export default function assignServerOptions (server, options) {
-	const isListenPort = 'listen' in options && typeof options.listen === 'number';
+	const isListenPort = typeof options.listen === 'number';
 
 	// certificate options
 	if ('cert' in options) {
@@ -35,7 +35,7 @@ export default function assignServerOptions (server, options) {
 	}
 
 	// port option
-	if (isListenPort || ('port' in options)) {
+	if (isListenPort || options.useAvailablePort || ('port' in options)) {
 		updateServerPort(
 			server,
 			isListenPort
