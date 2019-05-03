@@ -1,6 +1,12 @@
 import https from 'https';
 
-export default function close (callback) {
+/**
+* Stops the server from accepting new connections.
+* @param {Function} [closeListener] - The method called when all of the servers have been unbound.
+* @return {Server}
+*/
+
+function close (callback) {
 	Promise.all(
 		this._servers.splice(0).map(
 			server => new Promise(resolve => {
@@ -24,6 +30,6 @@ export default function close (callback) {
 			}
 		}
 	);
-
-	return this;
 }
+
+export default close;

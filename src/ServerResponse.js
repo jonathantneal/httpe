@@ -1,6 +1,21 @@
 import http from 'http';
 
-export default class ServerResponse extends http.ServerResponse {
+/**
+* @name ServerResponse
+* @class
+* @extends http.ServerResponse
+* @classdesc Creates the `response` object used to define server status, headers and data.
+* @return {ServerResponse}
+*/
+
+class ServerResponse extends http.ServerResponse {
+	/**
+	* Redirects to a URL path, with a customizable status code. If not specified, status defaults to “302 “Found”.
+	* @param {Number} [statusCode=302] - The HTTP response status code.
+	* @param {String} [path] - The URL path to redirect to.
+	* @return {Server}
+	*/
+
 	redirect () {
 		if (!this.finished) {
 			const args = Array.prototype.slice.call(arguments, 0, 2);
@@ -75,6 +90,11 @@ export default class ServerResponse extends http.ServerResponse {
 		return this;
 	}
 
+	/**
+	* Sets one or more to-be-sent headers.
+	* @return {Server}
+	*/
+
 	setHeader () {
 		const [field, value] = arguments;
 
@@ -95,13 +115,17 @@ export default class ServerResponse extends http.ServerResponse {
 		return this;
 	}
 
+	/**
+	* Sets the HTTP status for the response.
+	* @return {Server}
+	*/
+
 	status (code) {
 		this.statusCode = code;
 
 		return this;
 	}
 }
-
 
 function isThenable (value) {
 	return typeof Object(value).then === 'function'
@@ -122,3 +146,5 @@ function toBodyString (value) {
 		? JSON.stringify(value)
 	: String(value)
 }
+
+export default ServerResponse;

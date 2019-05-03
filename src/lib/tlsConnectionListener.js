@@ -1,4 +1,11 @@
-export default function tlsConnectionListener (socket) {
+/**
+* @function tlsConnectionListener
+* @desc A rewired connection listener for HTTP and HTTPS.
+* @param {Socket} socket - The TCP socket.
+* @return {Void}
+*/
+
+function tlsConnectionListener (socket) {
 	const data = socket.read(1);
 
 	if (data === null) {
@@ -24,3 +31,5 @@ export default function tlsConnectionListener (socket) {
 }
 
 function errorListener () {}
+
+export default tlsConnectionListener;

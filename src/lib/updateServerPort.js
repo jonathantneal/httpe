@@ -1,6 +1,14 @@
 import isPortAvailable from '../isPortAvailable';
 
-export default function updateServerPort (server, desiredPort) {
+/**
+* @function updateServerPort
+* @desc Updates the server port with the nearest one available for a connection.
+* @param {Server} server - The current {@link Server}.
+* @param {Array|Number} desiredPort - The desired port to use or start looking from.
+* @return {Void}
+*/
+
+function updateServerPort (server, desiredPort) {
 	const port = Array.isArray(desiredPort)
 		? desiredPort.map(
 			each => Number(each)
@@ -21,3 +29,5 @@ export default function updateServerPort (server, desiredPort) {
 		)
 	: port;
 }
+
+export default updateServerPort;

@@ -2,6 +2,7 @@
 !.editorconfig
 !.eslintrc
 !.gitignore
+!.jsdocrc
 !.travis.yml
 *.log*
 /index.*

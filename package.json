@@ -15,26 +15,31 @@
   ],
   "scripts": {
     "build": "rollup --config --silent",
+    "docs": "jsdoc --configure .jsdocrc --destination .gh-pages",
     "postbuild": "g1=$(gzip-size --level 0 index.js); g2=$(gzip-size --level 9 index.js); echo Bundle size: $g1 / $g2 gzip",
+    "postdocs": "for file in .gh-pages/*.html; do npx phtml \"$file\" \"$file\" -p .gh-pages/scripts/posthtml-patch; done",
+    "predocs": "rm -rf .gh-pages/*.html",
     "prepublishOnly": "npm test && npm run build",
     "test": "npm run test:eclint && npm run test:eslint",
     "test:eclint": "eclint check",
-    "test:eslint": "eslint src/**/*.js --cache --ignore-path .gitignore"
+    "test:eslint": "eslint src/*.js src/**/*.js --cache --ignore-path .gitignore"
   },
   "engines": {
     "node": ">=8.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.3",
-    "@babel/plugin-proposal-class-properties": "^7.4.0",
-    "@babel/preset-env": "^7.4.3",
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
     "babel-eslint": "^10.0.1",
+    "docdash": "^1.1.0",
     "eclint": "^2.8.1",
     "eslint": "^5.16.0",
     "gzip-size": "^5.1.0",
+    "jsdoc": "^3.5.5",
     "mime-types": "^2.1.24",
     "postcss-preset-env": "^6.6.0",
-    "rollup": "^1.10.0",
+    "rollup": "^1.10.1",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-terser": "^4.0.4",
     "selfsigned": "^1.10.4"

@@ -1,15 +1,15 @@
-import allowCrossProtocolConnections from '../lib/allowCrossProtocolConnections';
+import enableCrossProtocolConnections from '../lib/enableCrossProtocolConnections';
 import assignServerOptions from '../lib/assignServerOptions';
 import https from 'https';
 
 /**
-* Start a server listening for connections.
+* Starts a server listening for connections.
 * @param {Function|Options|Port} [options] - The port used for connections, the options for the server, or the listener called once the server is bound.
 * @param {Function} [listener] - The listener called once the server has been bound.
 * @return {Server}
 */
 
-export default function listen (...args) {
+function listen (...args) {
 	// listener argument
 	const listeningListener = typeof args[args.length - 1] === 'function' && args.pop();
 
@@ -31,7 +31,7 @@ export default function listen (...args) {
 			[].concat(this.port).map(
 				port => new Promise(
 					resolve => {
-						const server = allowCrossProtocolConnections(
+						const server = enableCrossProtocolConnections(
 							new https.Server(this)
 						);
 
@@ -63,6 +63,6 @@ export default function listen (...args) {
 	if (typeof listeningListener === 'function') {
 		this.on('listening', listeningListener);
 	}
-
-	return this;
 }
+
+export default listen;

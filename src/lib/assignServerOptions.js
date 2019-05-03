@@ -1,7 +1,21 @@
 import generateCertificate from '../generateCertificate';
 import updateServerPort from './updateServerPort';
 
-export default function assignServerOptions (server, options) {
+/**
+* @function assignServerOptions
+* @desc Configures options or `connectionListener` on the {@link Server}.
+* @param {Server} server - The current {@link Server}.
+* @param {Object} [options] - The options for the server or `connectionListener`.
+* @param {Boolean} [options.useAvailablePort] - Whether to use the first available port from the desired port or ports.
+* @param {Boolean} [options.listen] - The overriding desired port or ports to use if they are available, otherwising using the first available.
+* @param {Array|Number} [options.port] - The desired port or ports to use.
+* @param {Buffer|String} [options.cert] - The certificate; when missing along with `options.key` will cause a new certificate to be generated.
+* @param {Buffer|String} [options.key] - The key; when missing along with `options.cert` will cause a new certificate to be generated.
+* @param {Function} [connectionListener] - The listener bound to all connections.
+* @return {Void}
+*/
+
+function assignServerOptions (server, options) {
 	const isListenPort = typeof options.listen === 'number';
 
 	// certificate options
@@ -44,3 +58,5 @@ export default function assignServerOptions (server, options) {
 		);
 	}
 }
+
+export default assignServerOptions;

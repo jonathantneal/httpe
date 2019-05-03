@@ -1,7 +1,7 @@
-import close from './Server/close';
 import https from 'https';
-import listen from './Server/listen';
-import constructor from './Server/constructor';
+import serverClose from './Server/close';
+import serverConstructor from './Server/constructor';
+import serverListen from './Server/listen';
 
 /**
 * @name Server
@@ -18,29 +18,40 @@ import constructor from './Server/constructor';
 * @return {Server}
 */
 
-export default class Server extends https.Server {
+class Server extends https.Server {
 	constructor () {
 		super();
 
-		constructor.apply(this, arguments);
+		serverConstructor.apply(this, arguments);
 	}
 
+	/**
+	* Starts a server listening for connections.
+	* @param {Function|Options|Port} [options] - The port used for connections, the options for the server, or the listener called once the server is bound.
+	* @param {Function} [listener] - The listener called once the server has been bound.
+	* @return {Server}
+	*/
+
 	listen () {
-		listen.apply(this, arguments);
+		serverListen.apply(this, arguments);
 
 		return this;
 	}
 
 	/**
-	* Stops the server from accepting new connections and keeps existing connections.
+	* Stops the server from accepting new connections.
 	* @param {Function} [closeListener] - The method called when all of the servers have been unbound.
 	* @return {Server}
 	*/
 
 	close (callback) {
-		return close.call(this, callback);
+		serverClose.call(this, callback);
+
+		return this;
 	}
 }
+
+export default Server;
 
 /**
 * @external http.Server

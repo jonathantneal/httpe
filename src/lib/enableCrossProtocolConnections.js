@@ -5,7 +5,14 @@ import tlsConnectionListener from './tlsConnectionListener';
 const { on, removeListener } = https.Server.prototype;
 const { _connectionListener } = http;
 
-export default function allowCrossProtocolConnections (server) {
+/**
+* @function enableCrossProtocolConnections
+* @desc Enables cross protocol connections from the server.
+* @param {Server} server - The current {@link Server}.
+* @return {Server}
+*/
+
+function enableCrossProtocolConnections (server) {
 	Object.assign(server, {
 		_connectionListener,
 		_tlsConnectionListener: server._events.connection,
@@ -20,3 +27,5 @@ export default function allowCrossProtocolConnections (server) {
 
 	return server;
 }
+
+export default enableCrossProtocolConnections;

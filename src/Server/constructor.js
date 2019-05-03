@@ -1,11 +1,23 @@
-import allowCrossProtocolConnections from '../lib/allowCrossProtocolConnections';
+import enableCrossProtocolConnections from '../lib/enableCrossProtocolConnections';
 import assignServerOptions from '../lib/assignServerOptions';
 import IncomingMessage from '../IncomingMessage';
 import ServerResponse from '../ServerResponse';
 
-export default function constructor (...args) {
+/**
+* Creates a new HTTP & HTTPS Server that supports multiple ports.
+* @param {Object} [options] - The options for the server or `connectionListener`.
+* @param {Boolean} [options.useAvailablePort] - Whether to use the first available port from the desired port or ports.
+* @param {Boolean} [options.listen] - The overriding desired port or ports to use if they are available, otherwising using the first available.
+* @param {Array|Number} [options.port] - The desired port or ports to use.
+* @param {Buffer|String} [options.cert] - The certificate; when missing along with `options.key` will cause a new certificate to be generated.
+* @param {Buffer|String} [options.key] - The key; when missing along with `options.cert` will cause a new certificate to be generated.
+* @param {Function} [connectionListener] - The listener bound to all connections.
+* @return {Server}
+*/
+
+function constructor (...args) {
 	Object.assign(
-		allowCrossProtocolConnections(this),
+		enableCrossProtocolConnections(this),
 		{
 			_servers: [],
 			IncomingMessage,
@@ -32,3 +44,5 @@ export default function constructor (...args) {
 		this.on('request', requestListener);
 	}
 }
+
+export default constructor;

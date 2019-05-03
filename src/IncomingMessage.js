@@ -3,7 +3,15 @@ import getRequestFromPath from './lib/getRequestFromPath';
 import http from 'http';
 import mimeTypes from 'mime-types';
 
-export default class IncomingMessage extends http.IncomingMessage {
+/**
+* @name IncomingMessage
+* @class
+* @extends http.IncomingMessage
+* @classdesc Creates the `request` object used to access client status, headers and data.
+* @return {IncomingMessage}
+*/
+
+class IncomingMessage extends http.IncomingMessage {
 	constructor () {
 		super(...arguments);
 
@@ -31,7 +39,7 @@ export default class IncomingMessage extends http.IncomingMessage {
 	}
 
 	/**
-	* Return whether the current request matches a particular pattern.
+	* Returns whether the current request matches a particular pattern.
 	* @param {Object|String|RegExp} pattern - The pattern used to match the current request.
 	* @returns {Boolean} Whether the pattern matched the current request.
 	* @example <caption>Match any path name that ends in .js</caption>
@@ -48,15 +56,15 @@ export default class IncomingMessage extends http.IncomingMessage {
 	includes (search) {
 		const [ method, port, path ] = getRequestFromPath(search);
 
-		const match1 = !method || method.includes(this.method);
-		const match2 = match1 && (!port || port.includes(this.connection.server.port));
+		const match1 = !method.length || method.includes(this.method);
+		const match2 = match1 && (!port.length || port.includes(this.connection.server.port));
 		const match3 = match2 && (!path || path.test(this.pathname));
 
 		return Boolean(match3);
 	}
 
 	/**
-	* Return the default charset for the current URL.
+	* Returns the default charset for the current URL.
 	* @returns {String|Null}
 	* @example <caption>If the request.pathname is `/script.js`</caption>
 	* request.charset; // returns 'UTF-8'
@@ -67,7 +75,7 @@ export default class IncomingMessage extends http.IncomingMessage {
 	}
 
 	/**
-	* Return the default content type for the current URL.
+	* Returns the default content type for the current URL.
 	* @returns {String|Null}
 	* @example <caption>If the request.pathname is `/script.js`</caption>
 	* request.contentType; // returns 'application/javascript; charset=utf-8'
@@ -78,7 +86,7 @@ export default class IncomingMessage extends http.IncomingMessage {
 	}
 
 	/**
-	* Return the default mime type for the current URL.
+	* Returns the default mime type for the current URL.
 	* @returns {String|Null}
 	* @example <caption>If the request.pathname is `/script.js`</caption>
 	* request.mimeType; // returns 'application/javascript'
@@ -88,3 +96,5 @@ export default class IncomingMessage extends http.IncomingMessage {
 		return mimeTypes.lookup(this.pathname) || null;
 	}
 }
+
+export default IncomingMessage;

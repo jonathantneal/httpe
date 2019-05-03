@@ -1,15 +1,22 @@
-export default function getGlobRegExpFromPathname (pathname) {
+/**
+* @function getRegExpFromGlob
+* @desc Return the glob path used to match the current request as a {RegExp}.
+* @param {String} glob - The glob path used to match the current request.
+* @return {RegExp} The glob path as a {RegExp}.
+*/
+
+function getRegExpFromGlob (search) {
 	return new RegExp(`^${
-		String(pathname || '').replace(
+		String(search || '').replace(
 			// escape unsupported regexp characters
 			/[\^$+.[\]{}]/g,
 			'\\$&'
 		).replace(
-			// prefix the pathname with a slash
+			// prefix the glob with a slash
 			/^[^/]/,
 			'/$&'
 		).replace(
-			// prefix the pathname with a slash
+			// prefix the glob with a slash
 			/([?*])(.?)/g,
 			(all, match, next, offset, part) => {
 				const last = part[offset - 1];
@@ -32,3 +39,5 @@ export default function getGlobRegExpFromPathname (pathname) {
 		)
 	}$`);
 }
+
+export default getRegExpFromGlob;

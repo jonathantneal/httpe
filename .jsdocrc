@@ -1,0 +1,62 @@
+{
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "recurseDepth": 0,
+  "source": {
+    "include": [
+      "src"
+    ],
+    "includePattern": ".+\\.js(doc|x)?$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "opts": {
+    "destination": "./.gh-pages/",
+    "encoding": "utf8",
+    "readme": "./README.md",
+    "recurse": true,
+    "template": "node_modules/docdash",
+    "verbose": true
+  },
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "default": {
+      "layoutFile": "node_modules/docdash/tmpl/layout.tmpl",
+      "includeDate": false
+    }
+  },
+  "docdash": {
+    "title": "httpe",
+    "collapse": false,
+    "includeDate": false,
+    "typedefs": true,
+    "private": false,
+    "removeQuotes": true,
+    "sectionOrder": [
+      "Modules",
+      "Classes"
+    ],
+    "search": true,
+    "menu": {
+      "GitHub": {
+        "href": "https://github.com/jonathantneal/httpe"
+      }
+    },
+    "favicon": "favicon.ico",
+    "scripts": [
+      "styles/custom.css"
+    ],
+    "meta": {
+      "title": "httpe",
+      "description": "A zero-dependency http & https module supporting both protocols & multiple ports simultaneously"
+    },
+    "openGraph": {
+      "title": "httpe",
+      "type": "website",
+      "image": "https://jonneal.dev/node-logo.svg",
+      "site_name": "Docdash",
+      "url": "https://jonneal.dev/httpe"
+    }
+  }
+}

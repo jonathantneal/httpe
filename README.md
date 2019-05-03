@@ -1,4 +1,4 @@
-# httpe [<img src="https://jonathantneal.github.io/node-logo.svg" alt="" width="90" height="90" align="right">][httpe]
+# httpe [<img src="https://jonneal.dev/node-logo.svg" alt="" width="90" height="90" align="right">][httpe]
 
 [![NPM Version][npm-img]][npm-url]
 [![Build Status][cli-img]][cli-url]
@@ -19,16 +19,16 @@ const httpe = require('httpe');
 // start an http/https server on ports 80/443
 httpe.createServer().listen().on(
   'request',
-  (request, res) => {
-    if (request.includes('GET:80 /')) {
+  (req, res) => {
+    if (req.includes('GET:80 /')) {
       // Homepage: show a custom message
       res.set('A request for the root on port 80 using the GET method');
-    } else if (request.includes('/**.js')) {
+    } else if (req.includes('/**.js')) {
       // JavaScript: show a confusing message
       res.set(`eval does a body good`);
     } else {
       // Anything Else: show the method, port, and URL of the request
-      res.set(`${request.method}:${request.connection.server.port} ${request.pathname}`);
+      res.set(`${req.method}:${req.connection.server.port} ${req.pathname}`);
     }
   }
 );
@@ -133,35 +133,35 @@ The path may contain a **method**, **port**, and **pathname** with globs.
 
 ```js
 server.request((req, res) => {
-  if (request.includes('GET:80 /')) {
+  if (req.includes('GET:80 /')) {
     // runs whenever the root is requested on port 80 using the GET method
   }
 
-  if (request.includes(':80 /')) {
+  if (req.includes(':80 /')) {
     // runs whenever the root is requested on port 80 using any method
   }
 
-  if (request.includes('/')) {
+  if (req.includes('/')) {
     // runs whenever the root is requested on any port using any method
   }
 
-  if (request.includes('GET /')) {
+  if (req.includes('GET /')) {
     // runs whenever the root is requested on any port using the GET method
   }
 
-  if (request.includes('GET')) {
+  if (req.includes('GET')) {
     // runs whenever any path is requested on any port using the GET method
   }
 
-  if (request.includes(':80|443')) {
+  if (req.includes(':80|443')) {
     // runs whenever any path is requested on port 80 or 443 using any method
   }
 
-  if (request.includes('/**.js')) {
+  if (req.includes('/**.js')) {
     // runs whenever any path ending in .js is requested on any port using any method
   }
 
-  if (request.includes('/**/*')) {
+  if (req.includes('/**/*')) {
     // runs whenever a subdir path of any depth is requested on any port using any method
   }
 });

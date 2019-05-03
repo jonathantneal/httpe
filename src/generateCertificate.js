@@ -1,6 +1,15 @@
 import { generate } from 'selfsigned';
 
-export default function generateCertificate (rawprops, rawopts) {
+/**
+* @private
+* @name generateCertificate
+* @desc Generates a new SSL certificate.
+* @param {Array|Object} props - A map of OID subject items.
+* @param {Object} opts - Additional certificate configuration.
+* @return {Object} The certificate (`cert`) and private key (`key`).
+*/
+
+function generateCertificate (rawprops, rawopts) {
 	const props = Array.isArray(rawprops)
 		? rawprops.reduce(
 			(object, field) => field === Object(field)
@@ -42,3 +51,5 @@ export default function generateCertificate (rawprops, rawopts) {
 
 	return { cert, key };
 }
+
+export default generateCertificate;

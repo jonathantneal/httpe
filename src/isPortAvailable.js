@@ -1,14 +1,16 @@
 import { createServer } from 'net';
 
 /**
-* @function isPortAvailable
-* @description return a promise for whether the port is available for a connection
-* @param {Number} port - port for the connection
+* @private
+* @name isPortAvailable
+* @func
+* Returns a promise for whether a port is available for a connection.
+* @param {Number} port - The port tested for an available connection.
 * @param {Boolean} useAvailablePort - Whether to use the first available port.
-* @return {Promise} promise for whether the port is availale for a connection
+* @return {Promise} A promise resolving with the available port or rejecting with the error.
 */
 
-export default function isPortAvailable (port = 80, useAvailablePort) {
+function isPortAvailable (port = 80, useAvailablePort) {
 	return new Promise(
 		(resolve, reject) => {
 			const server = createServer().on(
@@ -21,3 +23,5 @@ export default function isPortAvailable (port = 80, useAvailablePort) {
 		}
 	);
 }
+
+export default isPortAvailable;
