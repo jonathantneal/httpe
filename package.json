@@ -1,6 +1,6 @@
 {
   "name": "httpe",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "A zero-dependency http & https module supporting both protocols & multiple ports simultaneously",
   "author": "Jonathan Neal <jonathantneal@hotmail.com>",
   "license": "CC0-1.0",
@@ -22,10 +22,14 @@
     "prepublishOnly": "npm test && npm run build",
     "test": "npm run test:eclint && npm run test:eslint",
     "test:eclint": "eclint check",
-    "test:eslint": "eslint src/*.js src/**/*.js --cache --ignore-path .gitignore"
+    "test:eslint": "eslint src/{*,**/*}.js --cache --ignore-path .gitignore"
   },
   "engines": {
     "node": ">=8.0.0"
+  },
+  "dependencies": {
+    "mime-types": "^2.1.24",
+    "selfsigned": "^1.10.4"
   },
   "devDependencies": {
     "@babel/core": "^7.4.4",
@@ -36,13 +40,11 @@
     "eclint": "^2.8.1",
     "eslint": "^5.16.0",
     "gzip-size": "^5.1.0",
-    "jsdoc": "^3.5.5",
-    "mime-types": "^2.1.24",
+    "jsdoc": "^3.6.2",
     "postcss-preset-env": "^6.6.0",
-    "rollup": "^1.10.1",
+    "rollup": "^1.12.3",
     "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-terser": "^4.0.4",
-    "selfsigned": "^1.10.4"
+    "rollup-plugin-terser": "^4.0.4"
   },
   "keywords": []
 }
