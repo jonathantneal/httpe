@@ -4,7 +4,7 @@
 [![Build Status][cli-img]][cli-url]
 [![Support Chat][git-img]][git-url]
 
-[httpe] is a 2.58 KB zero-dependency [`http`] and [`https`] replacement module
+[httpe] is a 3.62 KB zero-dependency [`http`] and [`https`] replacement module
 that supports multiple protocols and ports simultaneously. It generates SSL
 certificates if they are missing, and includes URL and path glob tooling as
 well as charset and mimetype detection.
@@ -16,25 +16,47 @@ npm install httpe
 ```js
 const httpe = require('httpe');
 
-// start an http/https server on ports 80/443
-httpe.createServer().listen().on(
-  'request',
-  (req, res) => {
-    if (req.includes('GET:80 /')) {
-      // Homepage: show a custom message
-      res.set('A request for the root on port 80 using the GET method');
-    } else if (req.includes('/**.js')) {
-      // JavaScript: show a confusing message
-      res.set(`eval does a body good`);
-    } else {
-      // Anything Else: show the method, port, and URL of the request
-      res.set(`${req.method}:${req.connection.server.port} ${req.pathname}`);
-    }
-  }
-);
+// immediately start an http/https server on ports 80/443
+httpe.createServer({
+  useAvailablePort: true,
+  listen: true
+}).use(
+  'GET:80 /',
+  // Homepage: show a custom message
+  (req, res) => res.set('A request for the root on port 80 using the GET method')
+).use(
+  '/**.js',
+  // JavaScript: show a confusing message
+  (req, res) => res.setJS(`eval does a body good`)
+).use(
+  // JSON: show a confusing message
+  '/**.json',
+  (req, res) => res.setJSON({ message: 'eval does a body good' })
+).use(
+  // Anything Else: show the method, port, and URL of the request
+  (req, res) => res.set(`${req.method}:${req.connection.server.port} ${req.pathname}`)
+).listen(server => {
+  console.log(
+    `httpe is listening…\n` +
+    `--------------------------------------\n` +
+    `   Local: ${server.port.map(port => `http://localhost:${port}/`).join('\n          ')}\n` +
+    `External: ${server.port.map(port => `http://${server.ip}:${port}/`).join('\n          ')}\n` +
+    `--------------------------------------`
+  );
+});
 ```
 
-It also supports initial configuration of the port.
+**httpe** is fully backwards compatible with the [`http`] module.
+
+```js
+const httpe = require('httpe');
+
+httpe.createServer((req, res) => {
+  // do something with the request
+}).listen();
+```
+
+**httpe** also supports initial configuration of the port.
 
 ```js
 // start an http/https server on port 8080
@@ -52,7 +74,7 @@ server = httpe.createServer();
 Arguments are identical to
 [https.createServer](https://nodejs.org/api/https.html#https_https_createserver_options_requestlistener)
 with the additions of; `port` which specifies the port or ports to be used by
-the server, `listen` which immediately starts the server, and
+the server, `listen` which can immediately start the server, and
 `useAvailablePort` which instructs the server to use the first available port.
 
 ```js
@@ -99,6 +121,9 @@ simultaneously, and extends
 [`http.Server`](https://nodejs.org/api/http.html#http_class_http_server).
 
 ```js
+const httpe = require('httpe');
+const { Server } = httpe;
+
 server = new Server();
 ```
 

@@ -1,5 +1,5 @@
 import generateCertificate from '../generateCertificate';
-import updateServerPort from './updateServerPort';
+import map from './map';
 
 /**
 * @function assignServerOptions
@@ -12,11 +12,14 @@ import updateServerPort from './updateServerPort';
 * @param {Buffer|String} [options.cert] - The certificate; when missing along with `options.key` will cause a new certificate to be generated.
 * @param {Buffer|String} [options.key] - The key; when missing along with `options.cert` will cause a new certificate to be generated.
 * @param {Function} [connectionListener] - The listener bound to all connections.
-* @return {Void}
+* @returns {Void}
 */
 
 function assignServerOptions (server, options) {
-	const isListenPort = typeof options.listen === 'number';
+	// private data
+	const data = map.get(server);
+
+	const isListenAnAssignment = Array.isArray(options.listen) || typeof options.listen === 'number';
 
 	// certificate options
 	if ('cert' in options) {
@@ -44,19 +47,34 @@ function assignServerOptions (server, options) {
 	}
 
 	// useAvailablePort option
-	if (isListenPort || options.useAvailablePort) {
+	if (isListenAnAssignment || options.useAvailablePort) {
 		server.useAvailablePort = true;
 	}
 
 	// port option
-	if (isListenPort || options.useAvailablePort || ('port' in options)) {
-		updateServerPort(
-			server,
-			isListenPort
+	if (isListenAnAssignment || options.useAvailablePort || ('port' in options)) {
+		data.port = getNormalizedPort(
+			isListenAnAssignment
 				? options.listen
-			: options.port
+			: 'port' in options
+				? options.port
+			: data.port,
+			data.port
 		);
 	}
+}
+
+function getNormalizedPort (port, originalPort) {
+	// normalized port
+	return Array.isArray(port)
+		? port.map(
+			number => Number(number)
+		).filter(
+			number => number
+		)
+	: Number(port)
+		? [Number(port)]
+	: originalPort;
 }
 
 export default assignServerOptions;

@@ -2,7 +2,7 @@
 * @function tlsConnectionListener
 * @desc A rewired connection listener for HTTP and HTTPS.
 * @param {Socket} socket - The TCP socket.
-* @return {Void}
+* @returns {Void}
 */
 
 function tlsConnectionListener (socket) {

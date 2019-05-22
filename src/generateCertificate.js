@@ -6,7 +6,7 @@ import { generate } from 'selfsigned';
 * @desc Generates a new SSL certificate.
 * @param {Array|Object} props - A map of OID subject items.
 * @param {Object} opts - Additional certificate configuration.
-* @return {Object} The certificate (`cert`) and private key (`key`).
+* @returns {Object} The certificate (`cert`) and private key (`key`).
 */
 
 function generateCertificate (rawprops, rawopts) {

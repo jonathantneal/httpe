@@ -8,7 +8,7 @@ import mimeTypes from 'mime-types';
 * @class
 * @extends http.IncomingMessage
 * @classdesc Creates the `request` object used to access client status, headers and data.
-* @return {IncomingMessage}
+* @returns {IncomingMessage}
 */
 
 class IncomingMessage extends http.IncomingMessage {
@@ -43,14 +43,14 @@ class IncomingMessage extends http.IncomingMessage {
 	* @param {Object|String|RegExp} pattern - The pattern used to match the current request.
 	* @returns {Boolean} Whether the pattern matched the current request.
 	* @example <caption>Match any path name that ends in .js</caption>
-	* request.includes('**.js');
-	* request.includes(/\.js$/);
-	* request.includes({ path: '**.js' });
-	* request.includes({ path: /\.js$/ });
+	* request.includes('**.js')
+	* request.includes(/\.js$/)
+	* request.includes({ path: '**.js' })
+	* request.includes({ path: /\.js$/ })
 	* @example <caption>Match any GET or POST request on port 80 or 443 that ends in .js</caption>
-	* request.includes('GET|POST:80|443 **.js');
-	* request.includes({ method: 'GET|POST', port: '80|443', path: '**.js' });
-	* request.includes({ method: ['GET', 'POST'], port: [80, 443], path: /\.js$/ });
+	* request.includes('GET|POST:80|443 **.js')
+	* request.includes({ method: 'GET|POST', port: '80|443', path: '**.js' })
+	* request.includes({ method: ['GET', 'POST'], port: [80, 443], path: /\.js$/ })
 	*/
 
 	includes (search) {
@@ -67,7 +67,7 @@ class IncomingMessage extends http.IncomingMessage {
 	* Returns the default charset for the current URL.
 	* @returns {String|Null}
 	* @example <caption>If the request.pathname is `/script.js`</caption>
-	* request.charset; // returns 'UTF-8'
+	* request.charset // returns 'UTF-8'
 	*/
 
 	get charset () {
@@ -78,7 +78,7 @@ class IncomingMessage extends http.IncomingMessage {
 	* Returns the default content type for the current URL.
 	* @returns {String|Null}
 	* @example <caption>If the request.pathname is `/script.js`</caption>
-	* request.contentType; // returns 'application/javascript; charset=utf-8'
+	* request.contentType // returns 'application/javascript; charset=utf-8'
 	*/
 
 	get contentType () {
@@ -89,7 +89,7 @@ class IncomingMessage extends http.IncomingMessage {
 	* Returns the default mime type for the current URL.
 	* @returns {String|Null}
 	* @example <caption>If the request.pathname is `/script.js`</caption>
-	* request.mimeType; // returns 'application/javascript'
+	* request.mimeType // returns 'application/javascript'
 	*/
 
 	get mimeType () {

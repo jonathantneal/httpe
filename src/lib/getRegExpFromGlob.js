@@ -2,7 +2,7 @@
 * @function getRegExpFromGlob
 * @desc Return the glob path used to match the current request as a {RegExp}.
 * @param {String} glob - The glob path used to match the current request.
-* @return {RegExp} The glob path as a {RegExp}.
+* @returns {RegExp} The glob path as a {RegExp}.
 */
 
 function getRegExpFromGlob (search) {

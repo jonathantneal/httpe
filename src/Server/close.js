@@ -1,14 +1,18 @@
 import https from 'https';
+import map from '../lib/map';
 
 /**
 * Stops the server from accepting new connections.
 * @param {Function} [closeListener] - The method called when all of the servers have been unbound.
-* @return {Server}
+* @returns {Server}
 */
 
 function close (callback) {
+	// private data
+	const data = map.get(this);
+
 	Promise.all(
-		this._servers.splice(0).map(
+		data.servers.splice(0).map(
 			server => new Promise(resolve => {
 				server._events = server._originalEvents;
 
@@ -25,11 +29,15 @@ function close (callback) {
 				https.Server.prototype.close.call(this);
 			}
 
+			data.listening = false;
+
 			if (typeof callback === 'function') {
 				callback.call(this);
 			}
 		}
 	);
+
+	return this;
 }
 
 export default close;

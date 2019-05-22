@@ -27,6 +27,8 @@
     }
   },
   "docdash": {
+    "static": true,
+    "sort": true,
     "title": "httpe",
     "collapse": false,
     "includeDate": false,

@@ -1,6 +1,8 @@
-import enableCrossProtocolConnections from '../lib/enableCrossProtocolConnections';
 import assignServerOptions from '../lib/assignServerOptions';
+import enableCrossProtocolConnections from '../lib/enableCrossProtocolConnections';
+import enableUseVisitors from '../lib/enableUseVisitors';
 import IncomingMessage from '../IncomingMessage';
+import map from '../lib/map';
 import ServerResponse from '../ServerResponse';
 
 /**
@@ -12,22 +14,33 @@ import ServerResponse from '../ServerResponse';
 * @param {Buffer|String} [options.cert] - The certificate; when missing along with `options.key` will cause a new certificate to be generated.
 * @param {Buffer|String} [options.key] - The key; when missing along with `options.cert` will cause a new certificate to be generated.
 * @param {Function} [connectionListener] - The listener bound to all connections.
-* @return {Server}
+* @returns {Server}
 */
 
 function constructor (...args) {
+	// initialize private data
+	map.set(this, {
+		listening: false,
+		port: [80, 443],
+		servers: []
+	});
+
 	Object.assign(
 		enableCrossProtocolConnections(this),
+		enableUseVisitors(this),
 		{
-			_servers: [],
 			IncomingMessage,
-			port: [80, 443],
 			ServerResponse,
 			useAvailablePort: false
 		}
 	);
 
+	// requestListener argument
 	const requestListener = typeof args[args.length - 1] === 'function' && args.pop();
+
+	if (typeof requestListener === 'function') {
+		this.use(requestListener);
+	}
 
 	// options argument
 	const options = Object(args[0]);
@@ -37,11 +50,6 @@ function constructor (...args) {
 	// listen option
 	if (options.listen) {
 		this.listen();
-	}
-
-	// requestListener argument
-	if (typeof requestListener === 'function') {
-		this.on('request', requestListener);
 	}
 }
 

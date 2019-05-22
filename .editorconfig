@@ -17,10 +17,10 @@ trim_trailing_whitespace = false
 [{CONTRIBUTING.md,LICENSE.md}]
 indent_size = 3
 
-[{/packages/*/*.{js,map,mjs},**/node_modules/**}]
-charset = none
-end_of_line = none
-insert_final_newline = none
-trim_trailing_whitespace = none
-indent_style = none
-indent_size = none
+[{/index.*,/packages/*/*.{js,map,mjs},**/node_modules/**}]
+charset = ignore
+end_of_line = ignore
+insert_final_newline = ignore
+trim_trailing_whitespace = ignore
+indent_style = ignore
+indent_size = ignore

@@ -9,7 +9,7 @@ const { _connectionListener } = http;
 * @function enableCrossProtocolConnections
 * @desc Enables cross protocol connections from the server.
 * @param {Server} server - The current {@link Server}.
-* @return {Server}
+* @returns {Server}
 */
 
 function enableCrossProtocolConnections (server) {

@@ -4,7 +4,7 @@ import getRegExpFromGlob from './getRegExpFromGlob';
 * @function getRequestFromPath
 * @desc Returns the method, port, and path from a pattern used to match the current request.
 * @param {RegExp|String} search - The pattern used to match the current request.
-* @return {Array} The method, port, and path.
+* @returns {Array} The method, port, and path.
 */
 
 function getRequestFromPath (search) {
