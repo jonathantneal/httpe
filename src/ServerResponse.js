@@ -72,7 +72,7 @@ class ServerResponse extends http.ServerResponse {
 
 						reject(error);
 					}).on('end', () => {
-						this.finished = true;
+						this.end();
 
 						resolve(this);
 					});
