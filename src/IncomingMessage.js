@@ -56,8 +56,8 @@ class IncomingMessage extends http.IncomingMessage {
 	includes (search) {
 		const [ method, port, path ] = getRequestFromPath(search);
 
-		const match1 = !method.length || method.includes(this.method);
-		const match2 = match1 && (!port.length || port.includes(this.connection.server.port));
+		const match1 = !method || !method.length || method.includes(this.method);
+		const match2 = match1 && (!port || !port.length || port.includes(this.connection.server.port));
 		const match3 = match2 && (!path || path.test(this.pathname));
 
 		return Boolean(match3);
