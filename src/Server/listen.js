@@ -1,3 +1,4 @@
+import { hasProperty, isArray, isFunction, isObject } from '../lib/is';
 import assignServerOptions from '../lib/assignServerOptions';
 import enableCrossProtocolConnections from '../lib/enableCrossProtocolConnections';
 import https from 'https';
@@ -16,16 +17,16 @@ function listen (...args) {
 	const data = map.get(this);
 
 	// listener argument
-	const listeningListener = typeof args[args.length - 1] === 'function' && args.pop();
+	const listeningListener = isFunction(args[args.length - 1]) && args.pop();
 
-	if (typeof listeningListener === 'function') {
+	if (isFunction(listeningListener)) {
 		this.on('listening', listeningListener);
 	}
 
 	// options argument
 	const options = args.length === 0
 		? {}
-	: args[0] === Object(args[0]) && !Array.isArray(args[0])
+	: isObject(args[0]) && !isArray(args[0])
 		? args[0]
 	: { port: args[0] };
 
@@ -38,10 +39,8 @@ function listen (...args) {
 
 	data.servers = data.servers.filter(
 		existingServer => {
-			const { port } = existingServer;
-
-			if (port in incomingPortHash) {
-				return existingPortHash[port] = port;
+			if (hasProperty(incomingPortHash, existingServer.port)) {
+				return existingPortHash[existingServer.port] = existingServer.port;
 			} else {
 				closingServers.push(
 					new Promise(
@@ -64,7 +63,7 @@ function listen (...args) {
 
 	data.port.forEach(
 		port => {
-			if (port in existingPortHash) {
+			if (hasProperty(existingPortHash, port)) {
 				// do nothing and continue
 			} else {
 				openingServers.push(
@@ -121,10 +120,11 @@ function listen (...args) {
 			const serverPortHash = {};
 
 			data.servers = data.servers.filter(server => server.listening && (serverPortHash[server.port] = true));
-			data.port = data.port.filter(port => port in serverPortHash);
+			data.port = data.port.filter(port => hasProperty(serverPortHash, port));
 
 			if (data.port.length) {
 				data.listening = true;
+
 				this.emit('listening', this);
 			}
 		}, error => {

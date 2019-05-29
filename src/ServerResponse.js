@@ -1,7 +1,15 @@
-import fs from 'fs';
+import end from './ServerResponse/end';
 import http from 'http';
-import getPathStats from './lib/getPathStats';
-import mimeTypes from 'mime-types';
+import redirect from './ServerResponse/redirect';
+import send from './ServerResponse/send';
+import sendFile from './ServerResponse/sendFile';
+import sendType from './ServerResponse/sendType';
+import setHeader from './ServerResponse/setHeader';
+import setHeaders from './ServerResponse/setHeaders';
+import setStatus from './ServerResponse/setStatus';
+import setStatusMessage from './ServerResponse/setStatusMessage';
+import write from './ServerResponse/write';
+import writeHead from './ServerResponse/writeHead';
 
 /**
 * @name ServerResponse
@@ -11,280 +19,201 @@ import mimeTypes from 'mime-types';
 * @returns {ServerResponse}
 * @example <caption>Using `ServerResponse` within a request event listener</caption>
 * function onRequest (response, request) {
-*   response.set('<p>some html</p>');
+*   response.send('<p>some html</p>');
 * }
 */
 
 class ServerResponse extends http.ServerResponse {
 	/**
+	* Send the HTTP response status, headers, and body, and end the response.
+	* This method signals to the server that all of the response headers and body have been sent; that server should consider this message complete. The method, response.end(), MUST be called on each response.
+	* @param {Buffer|Promise|*} [data] - The HTTP response body.
+	* @param {String} [encoding] - The character encoding of the data.
+	* @param {Function} [callback] - The function called when the stream is finished.
+	*/
+
+	end (data, ...args) {
+		return end.call(this, data, ...args);
+	}
+
+	/**
 	* Redirects to a URL path, with a customizable status code. If not specified, status defaults to “302 “Found”.
-	* @param {Number} [code=302] - The HTTP response status code.
+	* @param {Number} [status=302] - The HTTP response status code.
 	* @param {String} [path] - The URL path to redirect to.
 	* @returns {Server}
 	*/
 
-	redirect () {
-		if (!this.finished) {
-			const args = Array.prototype.slice.call(arguments, 0, 2);
-			const Location = args.pop();
-			const status = args.pop() || 302;
+	redirect (...args) {
+		return redirect.call(this, ...args);
+	}
 
-			this.writeHead(status, { Location });
-			this.end();
-		}
+	/**
+	* Send the HTTP response status, headers, and body, and end the response.
+	* @param {Number} [status=200] - The HTTP response status code.
+	* @param {Number} [headers] - The HTTP response headers.
+	* @param {Buffer|Promise|*} [body] - The HTTP response body.
+	* @returns {Server}
+	*/
 
-		return this;
+	send (...args) {
+		return send.call(this, ...args);
 	}
 
 	/**
 	* Streams a local file from a given path. Sets `Content-Length`, `Content-Type`, `Date`, and `Last-Modified` headers.
 	* @param {String} path - The path used to resolve the local file.
 	* @param {Object} [opts] - Additional configuration resolving the local file.
-	* @param {Object} [opts.cwd = '.'] - The directory used to resolve the local file.
+	* @param {Object} [opts.from = '.'] - The directory used to resolve the local file.
 	* @param {Object} [opts.index = 'index.html'] - The index basename used to resolve directories.
 	* @param {Object} [opts.headers] - Additional HTTP response headers.
+	* @param {Function} [opts.use] - The function used to process the local file.
 	* @async
 	* @returns {ServerResponse} A promise resolving with the current {@link ServerResponse} once the file has been streamed.
 	*/
 
-	sendFile (path) {
-		const [, opts] = arguments;
-
-		return getPathStats(path, opts).then(
-			stats => {
-				this.statusCode = 200;
-
-				this.setHeader({
-					contentLength: stats.contentLength,
-					contentType: stats.contentType,
-					lastModified: stats.lastModified
-				});
-
-				const readStream = fs.createReadStream(stats.path);
-
-				return new Promise((resolve, reject) => {
-					readStream.on('open', () => {
-						// when the readable stream is valid, pipe the read stream into the response
-						readStream.pipe(this);
-					}).on('error', error => {
-						// when the readable stream catches an error, end the response with the error
-						this.statusCode = 500;
-
-						reject(error);
-					}).on('end', () => {
-						this.end();
-
-						resolve(this);
-					});
-				});
-			},
-			error => {
-				this.statusCode = 404;
-
-				throw error;
-			}
-		);
+	sendFile (path, ...args) {
+		return sendFile.call(this, path, ...args);
 	}
 
 	/**
-	* Set the HTTP response body and end the response.
-	* @param {Number} [status] - The HTTP response status code.
-	* @param {Number} [headers] - The HTTP response headers.
-	* @param {Buffer|Promise|*} [body] - The HTTP response body.
-	* @returns {Server}
-	*/
-
-	set (...args) {
-		if (!this.finished) {
-			const options = args.reduce(
-				(options, arg) => {
-					if (!('body' in options)) {
-						if (isThenable(arg) || isPipeable(arg)) {
-							return { ...options, body: arg };
-						} else if (!('headers' in options)) {
-							if (arg === Object(arg)) {
-								return { ...options, headers: arg };
-							} else if (!('status' in options)) {
-								if (typeof arg === 'number') {
-									return { ...options, status: arg };
-								}
-							}
-						}
-					}
-
-					return { ...options, body: arg };
-				},
-				{}
-			);
-
-			if ('status' in options) {
-				this.statusCode = options.status;
-			}
-
-			if ('headers' in options) {
-				this.setHeader(options.headers);
-			}
-
-			if ('body' in options) {
-				if (isPipeable(options.body)) {
-					options.body.pipe(this);
-				} else if (isThenable(options.body)) {
-					this.finished = true;
-
-					resolveBody(options.body).then(
-						body => {
-							this.end(body);
-						}
-					);
-				} else {
-					this.end(options.body);
-				}
-			} else {
-				this.end();
-			}
-		}
-
-		return this;
-	}
-
-	/**
-	* Sets one or more to-be-sent headers.
-	* @returns {Server}
-	*/
-
-	setHeader () {
-		const [field, value] = arguments;
-
-		if (!this.finished) {
-			if (arguments.length === 1) {
-				for (const name in Object(field)) {
-					const fieldValue = field[name];
-
-					if (fieldValue !== null && fieldValue !== undefined) {
-						this.setHeader(toHeaderString(name), fieldValue);
-					}
-				}
-			} else if (value !== null && value !== undefined) {
-				http.ServerResponse.prototype.setHeader.call(this, field, value);
-			}
-		}
-
-		return this;
-	}
-
-	/**
-	* Set the HTTP response body as CSS and end the response.
-	* @param {String} [html] - The HTTP response body as CSS.
+	* Send the HTTP response body as CSS and end the response.
+	* @param {Buffer|Promise|*} [css] - The HTTP response body sent as CSS.
 	* @param {Object} [opts] - Additional configuration.
+	* @param {Object} [opts.headers] - Additional configuration.
+	* @param {Number} [opts.status=200] - The HTTP response status code.
 	* @returns {Server}
 	*/
 
-	setCSS (css, opts) {
-		const body = String(css);
-
-		return setServerX(this, body, 'css', opts);
+	sendCSS (css, opts) {
+		return sendType.call(this, 'css', css, opts);
 	}
 
 	/**
-	* Set the HTTP response body as HTML and end the response.
+	* Send the HTTP response body as HTML and end the response.
 	* @param {String} [html] - The HTTP response body as HTML.
 	* @param {Object} [opts] - Additional configuration.
+	* @param {Object} [opts.headers] - Additional configuration.
+	* @param {Number} [opts.status=200] - The HTTP response status code.
 	* @returns {Server}
 	*/
 
-	setHTML (html, opts) {
-		const body = String(html);
-
-		return setServerX(this, body, 'html', opts);
+	sendHTML (html, opts) {
+		return sendType.call(this, 'html', html, opts);
 	}
 
 	/**
-	* Set the HTTP response body as JavaScript and end the response.
+	* Send the HTTP response body as JavaScript and end the response.
 	* @param {String} [js] - The HTTP response body as JavaScript.
 	* @param {Object} [opts] - Additional configuration.
+	* @param {Object} [opts.headers] - Additional configuration.
+	* @param {Number} [opts.status=200] - The HTTP response status code.
 	* @returns {Server}
 	*/
 
-	setJS (js, opts) {
-		const body = String(js);
-
-		return setServerX(this, body, 'js', opts);
+	sendJS (js, opts) {
+		return sendType.call(this, 'js', js, opts);
 	}
 
 	/**
-	* Set the HTTP response body as JSON and end the response.
+	* Send the HTTP response body as JSON and end the response.
 	* @param {*} [json] - The HTTP response to be stringified as JSON.
 	* @param {Object} [opts] - Additional configuration for stringification.
+	* @param {Object} [opts.headers] - ...
+	* @param {Function} [opts.replacer] - The function to customize the JSON stringification process.
+	* @param {Number|String} [opts.space=2] - The white space used by the JSON stringification process.
+	* @param {Number} [opts.status=200] - The HTTP response status code.
 	* @returns {Server}
 	*/
 
-	setJSON (json, opts) {
-		const {
-			replacer = null,
-			space = '  '
-		} = Object(opts);
-
-		const body = JSON.stringify(json, replacer, space);
-
-		return setServerX(this, body, 'json', opts);
+	sendJSON (json, opts) {
+		return sendType.call(this, 'json', json, opts);
 	}
 
 	/**
-	* Sets the HTTP status for the response.
+	* Send the HTTP response status, headers, and body as a specific content type, and end the response.
+	* @param {Number} extension - The extension used to determine the content-type.
+	* @param {Buffer|Promise|*} body - The HTTP response body.
+	* @param {Object} [opts] - Additional configuration.
+	* @param {Object} [opts.headers] - Additional HTTP response headers.
+	* @param {Number} [opts.status=200] - The HTTP response status code.
 	* @returns {Server}
 	*/
 
-	status (code) {
-		this.statusCode = code;
+	sendType (extension, body, opts) {
+		return sendType.call(this, extension, body, opts);
+	}
+
+	/**
+	* Define a to-be-sent header.
+	* @returns {Server}
+	*/
+
+	setHeader (name, value) {
+		setHeader.call(this, name, value);
 
 		return this;
 	}
-}
 
-function isThenable (value) {
-	return typeof Object(value).then === 'function'
-}
+	/**
+	* Define to-be-sent headers.
+	* @returns {Server}
+	*/
 
-function isPipeable (value) {
-	return typeof Object(value).pipe === 'function'
-}
+	setHeaders (...args) {
+		return setHeaders.call(this, ...args);
+	}
 
-function resolveBody (value) {
-	return isThenable(value)
-		? value.then(resolveBody)
-	: toBodyString(value);
-}
+	/**
+	* Set the HTTP status for the response.
+	* @param {Number} [status=200] - The HTTP response status code.
+	* @returns {Server}
+	*/
 
-function toBodyString (value) {
-	return value === Object(value) && !Object.hasOwnProperty.call(value, 'toString')
-		? JSON.stringify(value)
-	: String(value)
-}
+	setStatus (status) {
+		setStatus.call(this, status);
 
-function toHeaderString (string) {
-	return /-/.test(string)
-		? string
-	: string.replace(
-		/[\w][A-Z]/g,
-		$0 => `${$0[0]}-${$0[1]}`
-	).replace(
-		/^[a-z]/,
-		$0 => $0.toUpperCase()
-	);
-}
+		return this;
+	}
 
-function setServerX (server, body, extension, opts) {
-	const {
-		code = 200,
-		headers: overrideHeaders
-	} = Object(opts);
+	/**
+	* Set the status message for the response.
+	* @param {String} [message] - The status message.
+	* @returns {Server}
+	*/
 
-	const headers = Object.assign({
-		contentLength: body.length,
-		contentType: mimeTypes.lookup(extension)
-	}, overrideHeaders);
+	setStatusMessage (status) {
+		setStatusMessage.call(this, status);
 
-	return server.set(code, headers, body);
+		return this;
+	}
+
+	/**
+	* Send the HTTP response status, headers, and body.
+	* @param {Buffer|Promise|*} [data] - The HTTP response body.
+	* @param {String} [encoding] - The character encoding of the data.
+	* @param {Function} [callback] - The function called when the data is flushed.
+	*/
+
+	write (data, ...args) {
+		return write.call(this, data, ...args);
+	}
+
+	/**
+	* Sends a response header to the request.
+	* @param {Number} status - The HTTP response status code.
+	* @param {String} [statusMessage] - The status message sent to the client.
+	* @param {Object} [headers] - Additional HTTP response headers.
+	* @returns {Server}
+	* @example
+	* response.writeHead(200, {
+	*  'Content-Length': 0,
+	*  contentType: 'text/plain'
+	* })
+	*/
+
+	writeHead (status, ...args) {
+		return writeHead.call(this, status, ...args);
+	}
 }
 
 export default ServerResponse;

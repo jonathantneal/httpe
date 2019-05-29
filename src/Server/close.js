@@ -1,3 +1,4 @@
+import { isFunction } from '../lib/is';
 import https from 'https';
 import map from '../lib/map';
 
@@ -31,7 +32,7 @@ function close (callback) {
 
 			data.listening = false;
 
-			if (typeof callback === 'function') {
+			if (isFunction(callback)) {
 				callback.call(this);
 			}
 		}

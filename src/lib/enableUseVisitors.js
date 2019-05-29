@@ -1,6 +1,5 @@
 import https from 'https';
-
-const { on } = https.Server.prototype;
+import map from './map';
 
 /**
 * @function enableUseVisitors
@@ -10,15 +9,13 @@ const { on } = https.Server.prototype;
 */
 
 export default function enableUseVisitors (server) {
-	const uses = [];
+	const uses = map.get(server).uses = [];
 
-	Object.assign(server, {
-		_uses: uses
-	});
-
-	on.call(server, 'request', onRequest);
+	https.Server.prototype.on.call(server, 'request', onRequest);
 
 	function onRequest (request, response) {
+		(request.response = response).request = request;
+
 		return uses.reduce(
 			(acc, use) => acc.then(
 				() => {

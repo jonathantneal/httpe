@@ -4,10 +4,9 @@
 [![Build Status][cli-img]][cli-url]
 [![Support Chat][git-img]][git-url]
 
-[httpe] is a 3.62 KB zero-dependency [`http`] and [`https`] replacement module
-that supports multiple protocols and ports simultaneously. It generates SSL
-certificates if they are missing, and includes URL and path glob tooling as
-well as charset and mimetype detection.
+[httpe] is a fully [`http`] & [`https`] compatible module that can support
+simultanious ports & protocols, set or generate SSL certificates & charsets &
+mimetypes, glob & chain requests, stream & process files, and more.
 
 ```bash
 npm install httpe
@@ -17,36 +16,33 @@ npm install httpe
 const httpe = require('httpe');
 
 // immediately start an http/https server on ports 80/443
-httpe.createServer({
-  useAvailablePort: true,
-  listen: true
-}).use(
+httpe.createServer({ listen: true }).use(
   'GET:80 /',
-  // Homepage: show a custom message
-  (req, res) => res.set('A request for the root on port 80 using the GET method')
+  // homepage: show a custom message
+  (req, res) => res.send('A request for the root on port 80 using the GET method')
 ).use(
-  '/**.js',
-  // JavaScript: show a confusing message
-  (req, res) => res.setJS(`eval does a body good`)
+  '*.js',
+  // js: show a confusing message
+  (req, res) => res.sendJS(`eval does a body good`)
 ).use(
-  // JSON: show a confusing message
-  '/**.json',
-  (req, res) => res.setJSON({ message: 'eval does a body good' })
+  // json: show a confusing message
+  '*.json',
+  (req, res) => res.sendJSON({ message: 'eval does a body good' })
 ).use(
-  // Anything Else: show the method, port, and URL of the request
-  (req, res) => res.set(`${req.method}:${req.connection.server.port} ${req.pathname}`)
+  // anything else: show the method, port, and URL of the request
+  (req, res) => res.send(`${req.method}:${req.connection.server.port} ${req.pathname}`)
 ).listen(server => {
   console.log(
     `httpe is listening…\n` +
     `--------------------------------------\n` +
     `   Local: ${server.port.map(port => `http://localhost:${port}/`).join('\n          ')}\n` +
-    `External: ${server.port.map(port => `http://${server.ip}:${port}/`).join('\n          ')}\n` +
+    `External: ${server.port.map(port => `http://${httpe.ip}:${port}/`).join('\n          ')}\n` +
     `--------------------------------------`
   );
 });
 ```
 
-**httpe** is fully backwards compatible with the [`http`] module.
+**httpe** is backwards-compatible with the [`http`] module.
 
 ```js
 const httpe = require('httpe');
@@ -56,103 +52,41 @@ httpe.createServer((req, res) => {
 }).listen();
 ```
 
-**httpe** also supports initial configuration of the port.
-
-```js
-// start an http/https server on port 8080
-httpe.createServer({ port: 8080 }).listen();
-```
-
-## httpe.createServer()
+## Additional Features
 
 The `createServer` method returns a new instance of a [`Server`](#httpe.Server).
-
-```js
-server = httpe.createServer();
-```
-
-Arguments are identical to
-[https.createServer](https://nodejs.org/api/https.html#https_https_createserver_options_requestlistener)
-with the additions of; `port` which specifies the port or ports to be used by
-the server, `listen` which can immediately start the server, and
-`useAvailablePort` which instructs the server to use the first available port.
+The `listen` property instructs the server to immediately begin, and giving it
+a number defines the `port`.
 
 ```js
 server = httpe.createServer({ port: 8080 });
 ```
 
 ```js
-// start the server immediately on port 8080
-server = httpe.createServer({ port: 8080, listen: true });
+server = httpe.createServer({ port: [80, 443] });
 ```
 
-```js
-// start the server immediately on the first available port from 8080
-server = httpe.createServer({ port: 8080, listen: true, useAvailablePort: true });
-```
-
-When a number, `listen` defines the `port` _and_ instructs the server to use
-the first available port.
+The `useAvailablePort` property instructs the server to use the first available
+port only if the specified port is not available.
 
 ```js
-// start the server immediately on the first available port from 8080
-server = httpe.createServer({ listen: 8080 });
-```
-
-### httpe.isPortAvailable()
-
-The `isPortAvailable` function returns a Promise for whether a port is
-available for a connection, with the option to use the next available port.
-
-```js
-// check port 80
-httpe.isPortAvailable(80).then(availablePort => {}, error => {});
-```
-
-```js
-// check any port from 80
-httpe.isPortAvailable(80, true).then(availablePort => {}, error => {});
-```
-
-## httpe.Server()
-
-The `Server` class creates a server on multiple protocols and ports
-simultaneously, and extends 
-[`http.Server`](https://nodejs.org/api/http.html#http_class_http_server).
-
-```js
-const httpe = require('httpe');
-const { Server } = httpe;
-
-server = new Server();
-```
-
-Arguments are identical to
-[https.createServer](https://nodejs.org/api/https.html#https_https_createserver_options_requestlistener)
-with the addition of `port`, which specifies the port or ports to be used by
-the server.
-
-```js
-server = new Server({ port: 8080 });
+server = httpe.createServer({ listen: 8080, useAvailablePort: true });
 ```
 
 ---
 
-## request
+### Additional Request Features
 
-Each `request` is identical to
-[`http.IncomingMessage`](https://nodejs.org/api/http.html#http_class_http_incomingmessage)
-with the addition of properties available to new
-[`URL`](https://nodejs.org/api/url.html#url_class_url) instances.
+The `request` object is identical to
+[`http.IncomingMessage`](https://nodejs.org/api/http.html#http_class_http_incomingmessage) with the addition of properties
+available to an [`URL`](https://nodejs.org/api/url.html#url_class_url).
 
 ```js
 request.pathname; // the pathname does not include search params
 ```
 
-## request.includes()
-
-The `includes` function returns whether a search pattern matches the current
-request.
+The `request.includes` function returns whether a search pattern matches the
+current request.
 
 The path may contain a **method**, **port**, and **pathname** with globs.
 
@@ -182,7 +116,7 @@ server.request((req, res) => {
     // runs whenever any path is requested on port 80 or 443 using any method
   }
 
-  if (req.includes('/**.js')) {
+  if (req.includes('*.js')) {
     // runs whenever any path ending in .js is requested on any port using any method
   }
 
@@ -192,111 +126,77 @@ server.request((req, res) => {
 });
 ```
 
-### request.charset
-
-The `charset` property returns the default character set for the request
-pathname.
+The `request.charset` property returns the default character set for the
+requested pathname. The `request.contentType` property returns the default
+content type for the requested pathname. The `request.mimeType` property
+returns the default mime type for the requested pathname.
 
 ```js
 // If the request.pathname is `/script.js`
 request.charset; // returns 'UTF-8'
-```
-
-### request.contentType
-
-The `contentType` property returns the default content type for the request
-pathname.
-
-```js
-// If the request.pathname is `/script.js`
 request.contentType; // returns 'application/javascript; charset=utf-8'
-```
-
-### request.mimeType
-
-The `mimeType` property returns the default mime type for the request pathname.
-
-```js
-// If the request.pathname is `/script.js`
 request.mimeType; // returns 'application/javascript'
 ```
 
 ---
 
-## response
+### Additional Response Features
 
-Each `response` is identical to
+The `response` is identical to
 [`http.ServerResponse`](https://nodejs.org/api/http.html#http_class_http_serverresponse)
 with the addition of the following chainable properties.
 
-### response.set()
-
-The `set` function sets an HTTP response body and ends the response.
+The `send` function sends an HTTP response body and ends the response. When the
+parameter is a Buffer, the `Content-Type` is set to `application/octet-stream`, and when it is a String, the `Content-Type` is set to `text/html`, and when the parameter is an Array or Object, the `Content-Type` is set to `text/json`.
 
 ```js
-res.set('<p>some html</p>');
+res.send('<p>some html</p>');
 ```
 
-The status code may also be specified.
+The `sendHTML`, `sendJS`, `sendJSON`, and `sendCSS` functions handle send
+specific kinds of responses.
 
 ```js
-res.set(404, 'Sorry, we cannot find that!');
+res.sendHTML('<p>some html</p>');
 ```
 
-The response body may also be a stream.
+A status code and headers may also be specified.
 
 ```js
-res.set(400, someStream);
+res.send(404, 'Sorry, we cannot find that!');
+
+res.send({
+  status: 404,
+  headers: { 'Content-Type': 'text/html' }
+}, 'Sorry, we cannot find that!');
 ```
 
-### response.redirect
-
-The `redirect` function redirects to a new URL.
+The `redirect` function redirects to a new URL. A status code may also be
+specified.
 
 ```js
-response.redirect('/foo/bar');
+response.redirect('/foo/bar'); // 302
+
+response.redirect(301, 'http://example.com'); // 301
 ```
 
-A status code may also be specified.
+The `setHeaders` function sets HTTP response headers, and multiple fields may
+be specified at once.
 
 ```js
-response.redirect(301, 'http://example.com');
-```
+response.setHeaders('Content-Type', 'text/plain');
 
-If not specified, the status code defaults to `302`.
-
-### response.setHeader
-
-The `setHeader` function sets HTTP response headers.
-
-```js
-response.setHeader('Content-Type', 'text/plain');
-```
-
-Multiple fields may be specified at once.
-
-```js
-response.setHeader({
+response.setHeaders({
   'Content-Type': 'text/plain',
-  'Content-Length': '123',
-  'ETag': '12345'
+  'Content-Length': 123
 });
 ```
 
-### response.status
-
-The `status` function sets the HTTP status for the response.
-
-```js
-res.status(403).end();
-```
+The `sendFile` function transfers a file, setting HTTP headers based on the
+filename’s extension, size, and modified time.
 
 ```js
-res.status(400).set('Bad Request');
-```
-
-```js
-res.status(404).sendFile('/absolute/path/to/404.png');
+res.sendFile('path/to/file', { from: 'some/dir' });
 ```
 
 [cli-img]: https://img.shields.io/travis/jonathantneal/httpe.svg

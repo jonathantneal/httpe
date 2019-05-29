@@ -9,7 +9,7 @@ import p from 'path';
 * @desc Returns the file stats for a given path.
 * @param {String} path - The path used to get stats.
 * @param {Object} [opts] - Additional configuration resolving file stats.
-* @param {Object} [opts.cwd = '.'] - The directory used to resolve the path.
+* @param {Object} [opts.from = '.'] - The directory used to resolve the path.
 * @param {Object} [opts.index = 'index.html'] - The index basename used to resolve directories.
 * @async
 * @returns {Stats} A promise resolving with the matching path and file stats, or an error if it failed.
@@ -27,10 +27,10 @@ import p from 'path';
 */
 
 export default function getPathStats (path, opts) {
-	const { cwd = '.', index = 'index.html' } = Object(opts);
+	const { from = '.', index = 'index.html' } = Object(opts);
 
 	return new Promise((resolve, reject) => {
-		path = p.resolve(cwd, path === '/' ? '' : path);
+		path = p.resolve(from, path[0] === '/' ? path.slice(1) : path);
 
 		fs.stat(path, (error, stats) => {
 			if (error) {
@@ -38,9 +38,7 @@ export default function getPathStats (path, opts) {
 
 				reject(error);
 			} else if (index && stats.isDirectory()) {
-				path = p.resolve(path, index);
-
-				getPathStats(path).then(resolve, reject);
+				getPathStats(index, { from: path }).then(resolve, reject);
 			} else {
 				const lastModified = new Date(stats.mtimeMs).toUTCString();
 				const contentLength = stats.size;

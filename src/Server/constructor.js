@@ -1,3 +1,4 @@
+import { isFunction } from '../lib/is';
 import assignServerOptions from '../lib/assignServerOptions';
 import enableCrossProtocolConnections from '../lib/enableCrossProtocolConnections';
 import enableUseVisitors from '../lib/enableUseVisitors';
@@ -36,9 +37,9 @@ function constructor (...args) {
 	);
 
 	// requestListener argument
-	const requestListener = typeof args[args.length - 1] === 'function' && args.pop();
+	const requestListener = isFunction(args[args.length - 1]) && args.pop();
 
-	if (typeof requestListener === 'function') {
+	if (isFunction(requestListener)) {
 		this.use(requestListener);
 	}
 

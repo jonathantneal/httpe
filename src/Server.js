@@ -1,10 +1,10 @@
 import assignServerOptions from './lib/assignServerOptions';
+import close from './Server/close';
+import constructor from './Server/constructor';
 import https from 'https';
+import listen from './Server/listen';
 import map from './lib/map';
-import os from 'os';
-import serverClose from './Server/close';
-import serverConstructor from './Server/constructor';
-import serverListen from './Server/listen';
+import use from './Server/use';
 
 /**
 * @name Server
@@ -28,7 +28,7 @@ class Server extends https.Server {
 	constructor () {
 		super();
 
-		serverConstructor.apply(this, arguments);
+		constructor.apply(this, arguments);
 	}
 
 	/**
@@ -42,14 +42,14 @@ class Server extends https.Server {
 	*     `httpe is listening…\n` +
 	*     `--------------------------------------\n` +
 	*     `   Local: ${server.port.map(port => `http://localhost:${port}/`).join('\n          ')}\n` +
-	*     `External: ${server.port.map(port => `http://${server.ip}:${port}/`).join('\n          ')}\n` +
+	*     `External: ${server.port.map(port => `http://${httpe.ip}:${port}/`).join('\n          ')}\n` +
 	*     `--------------------------------------`
 	*   )
 	* })
 	*/
 
 	listen () {
-		serverListen.apply(this, arguments);
+		listen.apply(this, arguments);
 
 		return this;
 	}
@@ -65,9 +65,7 @@ class Server extends https.Server {
 	*/
 
 	close (callback) {
-		serverClose.call(this, callback);
-
-		return this;
+		return close.call(this, callback);
 	}
 
 	/**
@@ -86,36 +84,7 @@ class Server extends https.Server {
 	*/
 
 	use (callback) {
-		if (arguments.length > 1) {
-			const [includes, callback] = arguments;
-
-			this._uses.push({ includes, callback });
-		} else {
-			this._uses.push({ callback });
-		}
-
-		return this;
-	}
-
-	/**
-	* @type {String}
-	* @desc Gets the first external IP address for the server.
-	* @example <caption>Get the current IP address of the server.</caption>
-	* server.ip // '127.0.0.1'
-	*/
-
-	get ip () {
-		const interfaces = os.networkInterfaces();
-
-		for (const name in interfaces) {
-			for (const address of interfaces[name]) {
-				if (address.family === 'IPv4' && !address.internal) {
-					return address.address;
-				}
-			}
-		}
-
-		return '127.0.0.1';
+		return use.call(this, callback);
 	}
 
 	/**
@@ -145,7 +114,7 @@ class Server extends https.Server {
 
 	set port (port) {
 		if (this.listening) {
-			serverListen.call(this, { port });
+			listen.call(this, { port });
 		} else {
 			assignServerOptions(this, { port });
 		}

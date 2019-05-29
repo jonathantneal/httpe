@@ -1,3 +1,4 @@
+import { hasProperty, isArray, isInteger } from './is';
 import generateCertificate from '../generateCertificate';
 import map from './map';
 
@@ -19,30 +20,30 @@ function assignServerOptions (server, options) {
 	// private data
 	const data = map.get(server);
 
-	const isListenAnAssignment = Array.isArray(options.listen) || typeof options.listen === 'number';
+	const isListenAnAssignment = isArray(options.listen) || isInteger(options.listen);
 
 	// certificate options
-	if ('cert' in options) {
+	if (hasProperty(options, 'cert')) {
 		server.cert = options.cert;
 	}
 
-	if ('key' in options) {
+	if (hasProperty(options, 'key')) {
 		server.key = options.key;
 	}
 
-	if (!server.cert && !server.key) {
+	if (!hasProperty(server, 'cert') && !hasProperty(server, 'key')) {
 		const certificate = generateCertificate();
 
 		Object.assign(server, certificate);
 	}
 
 	// IncomingMessage/ServerResponse options
-	if ('IncomingMessage' in options) {
+	if (hasProperty(options, 'IncomingMessage')) {
 		server.IncomingMessage = options.IncomingMessage;
 	}
 
 	// ServerResponse option
-	if ('ServerResponse' in options) {
+	if (hasProperty(options, 'ServerResponse')) {
 		server.ServerResponse = options.ServerResponse;
 	}
 
@@ -52,11 +53,11 @@ function assignServerOptions (server, options) {
 	}
 
 	// port option
-	if (isListenAnAssignment || options.useAvailablePort || ('port' in options)) {
+	if (isListenAnAssignment || options.useAvailablePort || hasProperty(options, 'port')) {
 		data.port = getNormalizedPort(
 			isListenAnAssignment
 				? options.listen
-			: 'port' in options
+			: hasProperty(options, 'port')
 				? options.port
 			: data.port,
 			data.port
@@ -66,7 +67,7 @@ function assignServerOptions (server, options) {
 
 function getNormalizedPort (port, originalPort) {
 	// normalized port
-	return Array.isArray(port)
+	return isArray(port)
 		? port.map(
 			number => Number(number)
 		).filter(

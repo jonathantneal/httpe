@@ -1,3 +1,4 @@
+import { isArray, isObject } from './lib/is';
 import { generate } from 'selfsigned';
 
 /**
@@ -10,16 +11,16 @@ import { generate } from 'selfsigned';
 */
 
 function generateCertificate (rawprops, rawopts) {
-	const props = Array.isArray(rawprops)
+	const props = isArray(rawprops)
 		? rawprops.reduce(
-			(object, field) => field === Object(field)
+			(object, field) => isObject(field)
 				? Object.assign(object, {
 					[field.name]: field.value
 				})
 			: object,
 			{}
 		)
-	: rawprops === Object(rawprops)
+	: isObject(rawprops)
 		? rawprops
 	: null;
 
@@ -30,7 +31,7 @@ function generateCertificate (rawprops, rawopts) {
 		}))
 	: null;
 
-	const opts = rawopts === Object(rawopts)
+	const opts = isObject(rawopts)
 		? rawopts
 	: {
 		extensions: [

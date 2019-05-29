@@ -1,7 +1,7 @@
 {
   "name": "httpe",
-  "version": "0.8.2",
-  "description": "A zero-dependency http & https module supporting both protocols & multiple ports simultaneously",
+  "version": "0.9.0",
+  "description": "An http & https compatible module. Simultanious ports & protocols. Set & generate certificates & charsets & mimetypes. Glob & chain requests. Stream & process files.",
   "author": "Jonathan Neal <jonathantneal@hotmail.com>",
   "license": "CC0-1.0",
   "repository": "jonathantneal/httpe",
@@ -24,6 +24,7 @@
     "test:eclint": "eclint check",
     "test:eslint": "eslint src/{*,**/*}.js --cache --ignore-path .gitignore",
     "watch": "nodemon --exec npm run watch-task --watch src",
+    "watch:build": "nodemon --exec npm run build --watch src",
     "watch-task": "npm run build && npm run docs"
   },
   "engines": {
@@ -43,9 +44,9 @@
     "eslint": "^5.16.0",
     "gzip-size": "^5.1.1",
     "jsdoc": "^3.6.2",
-    "nodemon": "^1.19.0",
+    "nodemon": "^1.19.1",
     "phtml": "^4.1.0",
-    "rollup": "^1.12.3",
+    "rollup": "^1.12.4",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-terser": "^5.0.0"
   },

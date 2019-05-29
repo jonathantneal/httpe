@@ -1,3 +1,4 @@
+import { isArray, isObject, isRegExp, isString } from './is';
 import getRegExpFromGlob from './getRegExpFromGlob';
 
 /**
@@ -10,15 +11,15 @@ import getRegExpFromGlob from './getRegExpFromGlob';
 function getRequestFromPath (search) {
 	let method, port, path;
 
-	if (typeof search === 'string') {
+	if (isString(search)) {
 		const [, methodString = '', portString, pathString = '**'] = search.match(pathRegExp);
 
 		method = formatMethod(methodString);
 		port = formatPort(portString);
 		path = getRegExpFromGlob(pathString);
-	} else if (Object.prototype.toString.call(search) === '[object RegExp]') {
+	} else if (isRegExp(search)) {
 		path = search;
-	} else if (search === Object(search)) {
+	} else if (isObject(search)) {
 		method = formatMethod(search.method);
 		port = formatPort(search.port);
 		path = getRequestFromPath(search.path)[2];
@@ -29,7 +30,7 @@ function getRequestFromPath (search) {
 
 function formatMethod (method) {
 	return method ? (
-		Array.isArray(method)
+		isArray(method)
 			? method
 		: String(method || '').split(/\|/)
 	).map(
@@ -39,7 +40,7 @@ function formatMethod (method) {
 
 function formatPort (port) {
 	return port ? (
-		Array.isArray(port)
+		isArray(port)
 			? port
 		: String(port || '').split(/\|/)
 	).map(

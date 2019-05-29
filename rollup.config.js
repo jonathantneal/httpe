@@ -8,7 +8,7 @@ const output = [
 ];
 const plugins = [
 	babel(),
-	terser()
+	// terser()
 ];
 
 export default { input, output, plugins };

@@ -1,9 +1,10 @@
 import generateCertificate from './generateCertificate';
-import getPathStats from './lib/getPathStats';
+import getPathStats from './getPathStats';
 import https from 'https';
 import IncomingMessage from './IncomingMessage';
 import isPortAvailable from './isPortAvailable';
 import mimeTypes from 'mime-types';
+import os from 'os';
 import Server from './Server';
 import ServerResponse from './ServerResponse';
 
@@ -87,7 +88,7 @@ const httpe = {
 	* @desc Returns the file stats for a given path.
 	* @param {String} path - The path used to get stats.
 	* @param {Object} [opts] - Additional configuration resolving file stats.
-	* @param {Object} [opts.cwd = '.'] - The directory used to resolve the path.
+	* @param {Object} [opts.from = '.'] - The directory used to resolve the path.
 	* @param {Object} [opts.index = 'index.html'] - The index basename used to resolve directories.
 	* @async
 	* @returns {Stats} A promise resolving with the matching path and file stats, or an error if it failed.
@@ -163,7 +164,28 @@ const httpe = {
 	* @implements {ServerResponse}
 	*/
 
-	ServerResponse
+	ServerResponse,
+
+	/**
+	* @type {String}
+	* @desc Gets the first external IP address for the server.
+	* @example <caption>Get the current IP address of the server.</caption>
+	* httpe.ip // '127.0.0.1'
+	*/
+
+	get ip () {
+		const interfaces = os.networkInterfaces();
+
+		for (const name in interfaces) {
+			for (const address of interfaces[name]) {
+				if (address.family === 'IPv4' && !address.internal) {
+					return address.address;
+				}
+			}
+		}
+
+		return '127.0.0.1';
+	}
 };
 
 export default httpe;
