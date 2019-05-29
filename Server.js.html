@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Server.js - httpe</title>
+    
+    <meta name="description" content="A zero-dependency http & https module supporting both protocols & multiple ports simultaneously" />
+    
+    
+    
+    <meta property="og:title" content="httpe"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:image" content="https://jonneal.dev/node-logo.svg"/>
+    <meta property="og:site_name" content="Docdash"/>
+    <meta property="og:url" content="https://jonneal.dev/httpe"/>
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" type="image/x-icon" href="https://jonneal.dev/httpe/favicon.ico"></head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="./">httpe</a></h2><h2></h2><h3>Modules</h3><ul><li><a href="module-httpe.html">httpe</a><ul class='methods'><li data-type='method'><a href="module-httpe.html#~createServer">createServer</a></li><li data-type='method'><a href="module-httpe.html#~generateCertificate">generateCertificate</a></li><li data-type='method'><a href="module-httpe.html#~getCharset">getCharset</a></li><li data-type='method'><a href="module-httpe.html#~getContentType">getContentType</a></li><li data-type='method'><a href="module-httpe.html#~getMimeType">getMimeType</a></li><li data-type='method'><a href="module-httpe.html#~getPathStats">getPathStats</a></li><li data-type='method'><a href="module-httpe.html#~isPortAvailable">isPortAvailable</a></li></ul></li></ul><h3>Classes</h3><ul><li><a href="IncomingMessage.html">IncomingMessage</a><ul class='methods'><li data-type='method'><a href="IncomingMessage.html#includes">includes</a></li></ul></li><li><a href="Server.html">Server</a><ul class='methods'><li data-type='method'><a href="Server.html#close">close</a></li><li data-type='method'><a href="Server.html#listen">listen</a></li><li data-type='method'><a href="Server.html#use">use</a></li></ul></li><li><a href="ServerResponse.html">ServerResponse</a><ul class='methods'><li data-type='method'><a href="ServerResponse.html#end">end</a></li><li data-type='method'><a href="ServerResponse.html#redirect">redirect</a></li><li data-type='method'><a href="ServerResponse.html#send">send</a></li><li data-type='method'><a href="ServerResponse.html#sendCSS">sendCSS</a></li><li data-type='method'><a href="ServerResponse.html#sendFile">sendFile</a></li><li data-type='method'><a href="ServerResponse.html#sendHTML">sendHTML</a></li><li data-type='method'><a href="ServerResponse.html#sendJS">sendJS</a></li><li data-type='method'><a href="ServerResponse.html#sendJSON">sendJSON</a></li><li data-type='method'><a href="ServerResponse.html#sendType">sendType</a></li><li data-type='method'><a href="ServerResponse.html#setHeader">setHeader</a></li><li data-type='method'><a href="ServerResponse.html#setHeaders">setHeaders</a></li><li data-type='method'><a href="ServerResponse.html#setStatus">setStatus</a></li><li data-type='method'><a href="ServerResponse.html#setStatusMessage">setStatusMessage</a></li><li data-type='method'><a href="ServerResponse.html#write">write</a></li><li data-type='method'><a href="ServerResponse.html#writeHead">writeHead</a></li></ul></li></ul>
+<h3>Links</h3><ul><li><a href="https://github.com/jonathantneal/httpe" >GitHub</a></li></ul></nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Server.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import assignServerOptions from './lib/assignServerOptions';
+import close from './Server/close';
+import constructor from './Server/constructor';
+import https from 'https';
+import listen from './Server/listen';
+import map from './lib/map';
+import use from './Server/use';
+
+/**
+* @name Server
+* @class
+* @extends https.Server
+* @classdesc Creates a new HTTP &amp; HTTPS Server that supports multiple ports.
+* @param {Object} [options] - The options for the server or `connectionListener`.
+* @param {Boolean} [options.useAvailablePort] - Whether to use the next available port if the desired port is unavailable.
+* @param {Boolean} [options.listen] - Whether to listen automatically.
+* @param {Number} [options.listen] - Whether to listen automatically, and to define the desired port or ports to use.
+* @param {Array|Number} [options.port] - The desired port or ports to use.
+* @param {Buffer|String} [options.cert] - The certificate; when missing along with `options.key` will cause a new certificate to be generated.
+* @param {Buffer|String} [options.key] - The key; when missing along with `options.cert` will cause a new certificate to be generated.
+* @param {Function} [connectionListener] - The listener bound to all connections.
+* @returns {Server}
+* @example &lt;caption>Create a server on port 8080 that is automatically listening&lt;/caption>
+* server = new Server({ port: 8080, listen: true })
+*/
+
+class Server extends https.Server {
+	constructor () {
+		super();
+
+		constructor.apply(this, arguments);
+	}
+
+	/**
+	* Starts a server listening for connections.
+	* @param {Function|Options|Port} [options] - The port used for connections, the options for the server, or the listener called once the server is bound.
+	* @param {Function} [listener] - The listener called once the server has been bound.
+	* @returns {Server}
+	* @example
+	* server.listen(() => {
+	*   console.log(
+	*     `httpe is listening…\n` +
+	*     `--------------------------------------\n` +
+	*     `   Local: ${server.port.map(port => `http://localhost:${port}/`).join('\n          ')}\n` +
+	*     `External: ${server.port.map(port => `http://${httpe.ip}:${port}/`).join('\n          ')}\n` +
+	*     `--------------------------------------`
+	*   )
+	* })
+	*/
+
+	listen () {
+		listen.apply(this, arguments);
+
+		return this;
+	}
+
+	/**
+	* Stops the server from accepting new connections.
+	* @param {Function} [closeListener] - The method called when all of the servers have been unbound.
+	* @returns {Server}
+	* @example
+	* server.close(() => {
+	*   console.log(`httpe has closed…`)
+	* })
+	*/
+
+	close (callback) {
+		return close.call(this, callback);
+	}
+
+	/**
+	* Attach visitor functions on requests to the server.
+	* @param {Object|String|RegExp} [pattern] - The pattern used to match requests.
+	* @param {Function} [callback] - The method called whenever a request is made and/or matched.
+	* @returns {Server}
+	* @example
+	* server.use((req, res) => {
+	*   // do something with any request
+	* })
+	* @example &lt;caption>Do&lt;/caption>
+	* server.use('/\**.js', (req, res) => {
+	*   // do something with any request ending in .js
+	* })
+	*/
+
+	use (callback) {
+		return use.call(this, callback);
+	}
+
+	/**
+	* @type {Boolean}
+	* @desc Returns whether the server is currently listening.
+	* @example &lt;caption>Check if the server is currently listening.&lt;/caption>
+	* server.listening // true or false
+	*/
+
+	get listening () {
+		return map.get(this).listening;
+	}
+
+	/**
+	* @type {Array}
+	* @desc Returns or assigns the ports currently being requested.
+	* @example &lt;caption>Get the current ports in use.&lt;/caption>
+	* server.port // [80, 443]
+	* @example &lt;caption>Set the current ports in use.&lt;/caption>
+	* server.port = 80
+	* server.port // [80]
+	*/
+
+	get port () {
+		return map.get(this).port;
+	}
+
+	set port (port) {
+		if (this.listening) {
+			listen.call(this, { port });
+		} else {
+			assignServerOptions(this, { port });
+		}
+	}
+}
+
+export default Server;
+
+/**
+* @external http.Server
+* @see https://nodejs.org/api/http.html#http_class_http_server
+* @external https.Server
+* @see https://nodejs.org/api/https.html#https_class_https_server
+* @external tls.Server
+* @see https://nodejs.org/api/tls.html#tls_class_tls_server
+*/
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.2</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+    
+</body>
+</html>

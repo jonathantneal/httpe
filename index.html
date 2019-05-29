@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Home - httpe</title>
+    
+    <meta name="description" content="A zero-dependency http & https module supporting both protocols & multiple ports simultaneously" />
+    
+    
+    
+    <meta property="og:title" content="httpe"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:image" content="https://jonneal.dev/node-logo.svg"/>
+    <meta property="og:site_name" content="Docdash"/>
+    <meta property="og:url" content="https://jonneal.dev/httpe"/>
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" type="image/x-icon" href="https://jonneal.dev/httpe/favicon.ico"></head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="./">httpe</a></h2><h2></h2><h3>Modules</h3><ul><li><a href="module-httpe.html">httpe</a><ul class='methods'><li data-type='method'><a href="module-httpe.html#~createServer">createServer</a></li><li data-type='method'><a href="module-httpe.html#~generateCertificate">generateCertificate</a></li><li data-type='method'><a href="module-httpe.html#~getCharset">getCharset</a></li><li data-type='method'><a href="module-httpe.html#~getContentType">getContentType</a></li><li data-type='method'><a href="module-httpe.html#~getMimeType">getMimeType</a></li><li data-type='method'><a href="module-httpe.html#~getPathStats">getPathStats</a></li><li data-type='method'><a href="module-httpe.html#~isPortAvailable">isPortAvailable</a></li></ul></li></ul><h3>Classes</h3><ul><li><a href="IncomingMessage.html">IncomingMessage</a><ul class='methods'><li data-type='method'><a href="IncomingMessage.html#includes">includes</a></li></ul></li><li><a href="Server.html">Server</a><ul class='methods'><li data-type='method'><a href="Server.html#close">close</a></li><li data-type='method'><a href="Server.html#listen">listen</a></li><li data-type='method'><a href="Server.html#use">use</a></li></ul></li><li><a href="ServerResponse.html">ServerResponse</a><ul class='methods'><li data-type='method'><a href="ServerResponse.html#end">end</a></li><li data-type='method'><a href="ServerResponse.html#redirect">redirect</a></li><li data-type='method'><a href="ServerResponse.html#send">send</a></li><li data-type='method'><a href="ServerResponse.html#sendCSS">sendCSS</a></li><li data-type='method'><a href="ServerResponse.html#sendFile">sendFile</a></li><li data-type='method'><a href="ServerResponse.html#sendHTML">sendHTML</a></li><li data-type='method'><a href="ServerResponse.html#sendJS">sendJS</a></li><li data-type='method'><a href="ServerResponse.html#sendJSON">sendJSON</a></li><li data-type='method'><a href="ServerResponse.html#sendType">sendType</a></li><li data-type='method'><a href="ServerResponse.html#setHeader">setHeader</a></li><li data-type='method'><a href="ServerResponse.html#setHeaders">setHeaders</a></li><li data-type='method'><a href="ServerResponse.html#setStatus">setStatus</a></li><li data-type='method'><a href="ServerResponse.html#setStatusMessage">setStatusMessage</a></li><li data-type='method'><a href="ServerResponse.html#write">write</a></li><li data-type='method'><a href="ServerResponse.html#writeHead">writeHead</a></li></ul></li></ul>
+<h3>Links</h3><ul><li><a href="https://github.com/jonathantneal/httpe" >GitHub</a></li></ul></nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+    <section class="package">
+        <h3> </h3>		
+    </section>
+
+
+
+
+
+
+
+
+
+    
+
+
+
+    <section class="readme">
+        <article><h1>httpe <a href="https://github.com/jonathantneal/httpe"><img src="https://jonneal.dev/node-logo.svg" alt="" width="90" height="90" align="right"></a></h1>
+<p><a href="https://www.npmjs.com/package/httpe"><img src="https://img.shields.io/npm/v/httpe.svg" alt="NPM Version"></a>
+<a href="https://travis-ci.org/jonathantneal/httpe"><img src="https://img.shields.io/travis/jonathantneal/httpe.svg" alt="Build Status"></a>
+<a href="https://gitter.im/postcss/postcss"><img src="https://img.shields.io/badge/support-chat-blue.svg" alt="Support Chat"></a></p>
+<p><a href="https://github.com/jonathantneal/httpe">httpe</a> is a fully <a href="https://nodejs.org/api/http.html"><code>http</code></a> &amp; <a href="https://nodejs.org/api/https.html"><code>https</code></a> compatible module that can support
+simultanious ports &amp; protocols, set or generate SSL certificates &amp; charsets &amp;
+mimetypes, glob &amp; chain requests, stream &amp; process files, and more.</p>
+<pre class="prettyprint source lang-bash"><code>npm install httpe
+</code></pre>
+<pre class="prettyprint source lang-js"><code>const httpe = require('httpe');
+
+// immediately start an http/https server on ports 80/443
+httpe.createServer({ listen: true }).use(
+  'GET:80 /',
+  // homepage: show a custom message
+  (req, res) => res.send('A request for the root on port 80 using the GET method')
+).use(
+  '*.js',
+  // js: show a confusing message
+  (req, res) => res.sendJS(`eval does a body good`)
+).use(
+  // json: show a confusing message
+  '*.json',
+  (req, res) => res.sendJSON({ message: 'eval does a body good' })
+).use(
+  // anything else: show the method, port, and URL of the request
+  (req, res) => res.send(`${req.method}:${req.connection.server.port} ${req.pathname}`)
+).listen(server => {
+  console.log(
+    `httpe is listening…\n` +
+    `--------------------------------------\n` +
+    `   Local: ${server.port.map(port => `http://localhost:${port}/`).join('\n          ')}\n` +
+    `External: ${server.port.map(port => `http://${httpe.ip}:${port}/`).join('\n          ')}\n` +
+    `--------------------------------------`
+  );
+});
+</code></pre>
+<p><strong>httpe</strong> is backwards-compatible with the <a href="https://nodejs.org/api/http.html"><code>http</code></a> module.</p>
+<pre class="prettyprint source lang-js"><code>const httpe = require('httpe');
+
+httpe.createServer((req, res) => {
+  // do something with the request
+}).listen();
+</code></pre>
+<h2>Additional Features</h2>
+<p>The <code>createServer</code> method returns a new instance of a <a href="#httpe.Server"><code>Server</code></a>.
+The <code>listen</code> property instructs the server to immediately begin, and giving it
+a number defines the <code>port</code>.</p>
+<pre class="prettyprint source lang-js"><code>server = httpe.createServer({ port: 8080 });
+</code></pre>
+<pre class="prettyprint source lang-js"><code>server = httpe.createServer({ port: [80, 443] });
+</code></pre>
+<p>The <code>useAvailablePort</code> property instructs the server to use the first available
+port only if the specified port is not available.</p>
+<pre class="prettyprint source lang-js"><code>server = httpe.createServer({ listen: 8080, useAvailablePort: true });
+</code></pre>
+<hr>
+<h3>Additional Request Features</h3>
+<p>The <code>request</code> object is identical to
+<a href="https://nodejs.org/api/http.html#http_class_http_incomingmessage"><code>http.IncomingMessage</code></a> with the addition of properties
+available to an <a href="https://nodejs.org/api/url.html#url_class_url"><code>URL</code></a>.</p>
+<pre class="prettyprint source lang-js"><code>request.pathname; // the pathname does not include search params
+</code></pre>
+<p>The <code>request.includes</code> function returns whether a search pattern matches the
+current request.</p>
+<p>The path may contain a <strong>method</strong>, <strong>port</strong>, and <strong>pathname</strong> with globs.</p>
+<pre class="prettyprint source lang-js"><code>server.request((req, res) => {
+  if (req.includes('GET:80 /')) {
+    // runs whenever the root is requested on port 80 using the GET method
+  }
+
+  if (req.includes(':80 /')) {
+    // runs whenever the root is requested on port 80 using any method
+  }
+
+  if (req.includes('/')) {
+    // runs whenever the root is requested on any port using any method
+  }
+
+  if (req.includes('GET /')) {
+    // runs whenever the root is requested on any port using the GET method
+  }
+
+  if (req.includes('GET')) {
+    // runs whenever any path is requested on any port using the GET method
+  }
+
+  if (req.includes(':80|443')) {
+    // runs whenever any path is requested on port 80 or 443 using any method
+  }
+
+  if (req.includes('*.js')) {
+    // runs whenever any path ending in .js is requested on any port using any method
+  }
+
+  if (req.includes('/**/*')) {
+    // runs whenever a subdir path of any depth is requested on any port using any method
+  }
+});
+</code></pre>
+<p>The <code>request.charset</code> property returns the default character set for the
+requested pathname. The <code>request.contentType</code> property returns the default
+content type for the requested pathname. The <code>request.mimeType</code> property
+returns the default mime type for the requested pathname.</p>
+<pre class="prettyprint source lang-js"><code>// If the request.pathname is `/script.js`
+request.charset; // returns 'UTF-8'
+request.contentType; // returns 'application/javascript; charset=utf-8'
+request.mimeType; // returns 'application/javascript'
+</code></pre>
+<hr>
+<h3>Additional Response Features</h3>
+<p>The <code>response</code> is identical to
+<a href="https://nodejs.org/api/http.html#http_class_http_serverresponse"><code>http.ServerResponse</code></a>
+with the addition of the following chainable properties.</p>
+<p>The <code>send</code> function sends an HTTP response body and ends the response. When the
+parameter is a Buffer, the <code>Content-Type</code> is set to <code>application/octet-stream</code>, and when it is a String, the <code>Content-Type</code> is set to <code>text/html</code>, and when the parameter is an Array or Object, the <code>Content-Type</code> is set to <code>text/json</code>.</p>
+<pre class="prettyprint source lang-js"><code>res.send('&lt;p>some html&lt;/p>');
+</code></pre>
+<p>The <code>sendHTML</code>, <code>sendJS</code>, <code>sendJSON</code>, and <code>sendCSS</code> functions handle send
+specific kinds of responses.</p>
+<pre class="prettyprint source lang-js"><code>res.sendHTML('&lt;p>some html&lt;/p>');
+</code></pre>
+<p>A status code and headers may also be specified.</p>
+<pre class="prettyprint source lang-js"><code>res.send(404, 'Sorry, we cannot find that!');
+
+res.send({
+  status: 404,
+  headers: { 'Content-Type': 'text/html' }
+}, 'Sorry, we cannot find that!');
+</code></pre>
+<p>The <code>redirect</code> function redirects to a new URL. A status code may also be
+specified.</p>
+<pre class="prettyprint source lang-js"><code>response.redirect('/foo/bar'); // 302
+
+response.redirect(301, 'http://example.com'); // 301
+</code></pre>
+<p>The <code>setHeaders</code> function sets HTTP response headers, and multiple fields may
+be specified at once.</p>
+<pre class="prettyprint source lang-js"><code>response.setHeaders('Content-Type', 'text/plain');
+
+response.setHeaders({
+  'Content-Type': 'text/plain',
+  'Content-Length': 123
+});
+</code></pre>
+<p>The <code>sendFile</code> function transfers a file, setting HTTP headers based on the
+filename’s extension, size, and modified time.</p>
+<pre class="prettyprint source lang-js"><code>res.sendFile('path/to/file', { from: 'some/dir' });
+</code></pre></article>
+    </section>
+
+
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.2</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+    
+</body>
+</html>

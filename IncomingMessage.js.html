@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>IncomingMessage.js - httpe</title>
+    
+    <meta name="description" content="A zero-dependency http & https module supporting both protocols & multiple ports simultaneously" />
+    
+    
+    
+    <meta property="og:title" content="httpe"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:image" content="https://jonneal.dev/node-logo.svg"/>
+    <meta property="og:site_name" content="Docdash"/>
+    <meta property="og:url" content="https://jonneal.dev/httpe"/>
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" type="image/x-icon" href="https://jonneal.dev/httpe/favicon.ico"></head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="./">httpe</a></h2><h2></h2><h3>Modules</h3><ul><li><a href="module-httpe.html">httpe</a><ul class='methods'><li data-type='method'><a href="module-httpe.html#~createServer">createServer</a></li><li data-type='method'><a href="module-httpe.html#~generateCertificate">generateCertificate</a></li><li data-type='method'><a href="module-httpe.html#~getCharset">getCharset</a></li><li data-type='method'><a href="module-httpe.html#~getContentType">getContentType</a></li><li data-type='method'><a href="module-httpe.html#~getMimeType">getMimeType</a></li><li data-type='method'><a href="module-httpe.html#~getPathStats">getPathStats</a></li><li data-type='method'><a href="module-httpe.html#~isPortAvailable">isPortAvailable</a></li></ul></li></ul><h3>Classes</h3><ul><li><a href="IncomingMessage.html">IncomingMessage</a><ul class='methods'><li data-type='method'><a href="IncomingMessage.html#includes">includes</a></li></ul></li><li><a href="Server.html">Server</a><ul class='methods'><li data-type='method'><a href="Server.html#close">close</a></li><li data-type='method'><a href="Server.html#listen">listen</a></li><li data-type='method'><a href="Server.html#use">use</a></li></ul></li><li><a href="ServerResponse.html">ServerResponse</a><ul class='methods'><li data-type='method'><a href="ServerResponse.html#end">end</a></li><li data-type='method'><a href="ServerResponse.html#redirect">redirect</a></li><li data-type='method'><a href="ServerResponse.html#send">send</a></li><li data-type='method'><a href="ServerResponse.html#sendCSS">sendCSS</a></li><li data-type='method'><a href="ServerResponse.html#sendFile">sendFile</a></li><li data-type='method'><a href="ServerResponse.html#sendHTML">sendHTML</a></li><li data-type='method'><a href="ServerResponse.html#sendJS">sendJS</a></li><li data-type='method'><a href="ServerResponse.html#sendJSON">sendJSON</a></li><li data-type='method'><a href="ServerResponse.html#sendType">sendType</a></li><li data-type='method'><a href="ServerResponse.html#setHeader">setHeader</a></li><li data-type='method'><a href="ServerResponse.html#setHeaders">setHeaders</a></li><li data-type='method'><a href="ServerResponse.html#setStatus">setStatus</a></li><li data-type='method'><a href="ServerResponse.html#setStatusMessage">setStatusMessage</a></li><li data-type='method'><a href="ServerResponse.html#write">write</a></li><li data-type='method'><a href="ServerResponse.html#writeHead">writeHead</a></li></ul></li></ul>
+<h3>Links</h3><ul><li><a href="https://github.com/jonathantneal/httpe" >GitHub</a></li></ul></nav>
+
+<div id="main">
+    
+    <h1 class="page-title">IncomingMessage.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { parse as parseAsURL, URLSearchParams } from 'url';
+import getRequestFromPath from './lib/getRequestFromPath';
+import http from 'http';
+import mimeTypes from 'mime-types';
+
+/**
+* @name IncomingMessage
+* @class
+* @extends http.IncomingMessage
+* @classdesc Creates the `request` object used to access client status, headers and data.
+* @returns {IncomingMessage}
+*/
+
+class IncomingMessage extends http.IncomingMessage {
+	constructor () {
+		super(...arguments);
+
+		Object.keys(parseAsURL(this.url)).forEach(name => {
+			Object.defineProperty(this, name, {
+				get () {
+					return parseAsURL(this.url)[name];
+				},
+				set (newValue) {
+					const urlObject = parseAsURL(this.url);
+
+					urlObject[name] = newValue;
+
+					this.url = urlObject.href;
+				},
+				configurable: true
+			})
+		});
+
+		Object.defineProperty(this, 'searchParams', {
+			get () {
+				return new URLSearchParams(this.search);
+			}
+		});
+	}
+
+	/**
+	* Returns whether the current request matches a particular pattern.
+	* @param {Object|String|RegExp} pattern - The pattern used to match the current request.
+	* @returns {Boolean} Whether the pattern matched the current request.
+	* @example &lt;caption>Match any path name that ends in .js&lt;/caption>
+	* request.includes('**.js')
+	* request.includes(/\.js$/)
+	* request.includes({ path: '**.js' })
+	* request.includes({ path: /\.js$/ })
+	* @example &lt;caption>Match any GET or POST request on port 80 or 443 that ends in .js&lt;/caption>
+	* request.includes('GET|POST:80|443 **.js')
+	* request.includes({ method: 'GET|POST', port: '80|443', path: '**.js' })
+	* request.includes({ method: ['GET', 'POST'], port: [80, 443], path: /\.js$/ })
+	*/
+
+	includes (search) {
+		const [ method, port, path ] = getRequestFromPath(search);
+
+		const match1 = !method || !method.length || method.includes(this.method);
+		const match2 = match1 &amp;&amp; (!port || !port.length || port.includes(this.connection.server.port));
+		const match3 = match2 &amp;&amp; (!path || path.test(this.pathname));
+
+		return Boolean(match3);
+	}
+
+	/**
+	* Returns the default charset for the current URL.
+	* @returns {String|Null}
+	* @example &lt;caption>If the request.pathname is `/script.js`&lt;/caption>
+	* request.charset // returns 'UTF-8'
+	*/
+
+	get charset () {
+		return mimeTypes.charset(mimeTypes.lookup(this.pathname)) || null;
+	}
+
+	/**
+	* Returns the default content type for the current URL.
+	* @returns {String|Null}
+	* @example &lt;caption>If the request.pathname is `/script.js`&lt;/caption>
+	* request.contentType // returns 'application/javascript; charset=utf-8'
+	*/
+
+	get contentType () {
+		return mimeTypes.contentType(this.mimeType) || null;
+	}
+
+	/**
+	* Returns the default mime type for the current URL.
+	* @returns {String|Null}
+	* @example &lt;caption>If the request.pathname is `/script.js`&lt;/caption>
+	* request.mimeType // returns 'application/javascript'
+	*/
+
+	get mimeType () {
+		return mimeTypes.lookup(this.pathname) || null;
+	}
+}
+
+export default IncomingMessage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.2</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+    
+</body>
+</html>

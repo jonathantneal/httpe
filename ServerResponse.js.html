@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>ServerResponse.js - httpe</title>
+    
+    <meta name="description" content="A zero-dependency http & https module supporting both protocols & multiple ports simultaneously" />
+    
+    
+    
+    <meta property="og:title" content="httpe"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:image" content="https://jonneal.dev/node-logo.svg"/>
+    <meta property="og:site_name" content="Docdash"/>
+    <meta property="og:url" content="https://jonneal.dev/httpe"/>
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" type="image/x-icon" href="https://jonneal.dev/httpe/favicon.ico"></head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="./">httpe</a></h2><h2></h2><h3>Modules</h3><ul><li><a href="module-httpe.html">httpe</a><ul class='methods'><li data-type='method'><a href="module-httpe.html#~createServer">createServer</a></li><li data-type='method'><a href="module-httpe.html#~generateCertificate">generateCertificate</a></li><li data-type='method'><a href="module-httpe.html#~getCharset">getCharset</a></li><li data-type='method'><a href="module-httpe.html#~getContentType">getContentType</a></li><li data-type='method'><a href="module-httpe.html#~getMimeType">getMimeType</a></li><li data-type='method'><a href="module-httpe.html#~getPathStats">getPathStats</a></li><li data-type='method'><a href="module-httpe.html#~isPortAvailable">isPortAvailable</a></li></ul></li></ul><h3>Classes</h3><ul><li><a href="IncomingMessage.html">IncomingMessage</a><ul class='methods'><li data-type='method'><a href="IncomingMessage.html#includes">includes</a></li></ul></li><li><a href="Server.html">Server</a><ul class='methods'><li data-type='method'><a href="Server.html#close">close</a></li><li data-type='method'><a href="Server.html#listen">listen</a></li><li data-type='method'><a href="Server.html#use">use</a></li></ul></li><li><a href="ServerResponse.html">ServerResponse</a><ul class='methods'><li data-type='method'><a href="ServerResponse.html#end">end</a></li><li data-type='method'><a href="ServerResponse.html#redirect">redirect</a></li><li data-type='method'><a href="ServerResponse.html#send">send</a></li><li data-type='method'><a href="ServerResponse.html#sendCSS">sendCSS</a></li><li data-type='method'><a href="ServerResponse.html#sendFile">sendFile</a></li><li data-type='method'><a href="ServerResponse.html#sendHTML">sendHTML</a></li><li data-type='method'><a href="ServerResponse.html#sendJS">sendJS</a></li><li data-type='method'><a href="ServerResponse.html#sendJSON">sendJSON</a></li><li data-type='method'><a href="ServerResponse.html#sendType">sendType</a></li><li data-type='method'><a href="ServerResponse.html#setHeader">setHeader</a></li><li data-type='method'><a href="ServerResponse.html#setHeaders">setHeaders</a></li><li data-type='method'><a href="ServerResponse.html#setStatus">setStatus</a></li><li data-type='method'><a href="ServerResponse.html#setStatusMessage">setStatusMessage</a></li><li data-type='method'><a href="ServerResponse.html#write">write</a></li><li data-type='method'><a href="ServerResponse.html#writeHead">writeHead</a></li></ul></li></ul>
+<h3>Links</h3><ul><li><a href="https://github.com/jonathantneal/httpe" >GitHub</a></li></ul></nav>
+
+<div id="main">
+    
+    <h1 class="page-title">ServerResponse.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import end from './ServerResponse/end';
+import http from 'http';
+import redirect from './ServerResponse/redirect';
+import send from './ServerResponse/send';
+import sendFile from './ServerResponse/sendFile';
+import sendType from './ServerResponse/sendType';
+import setHeader from './ServerResponse/setHeader';
+import setHeaders from './ServerResponse/setHeaders';
+import setStatus from './ServerResponse/setStatus';
+import setStatusMessage from './ServerResponse/setStatusMessage';
+import write from './ServerResponse/write';
+import writeHead from './ServerResponse/writeHead';
+
+/**
+* @name ServerResponse
+* @class
+* @extends http.ServerResponse
+* @classdesc Creates the `response` object used to define server status, headers and data.
+* @returns {ServerResponse}
+* @example &lt;caption>Using `ServerResponse` within a request event listener&lt;/caption>
+* function onRequest (response, request) {
+*   response.send('&lt;p>some html&lt;/p>');
+* }
+*/
+
+class ServerResponse extends http.ServerResponse {
+	/**
+	* Send the HTTP response status, headers, and body, and end the response.
+	* This method signals to the server that all of the response headers and body have been sent; that server should consider this message complete. The method, response.end(), MUST be called on each response.
+	* @param {Buffer|Promise|*} [data] - The HTTP response body.
+	* @param {String} [encoding] - The character encoding of the data.
+	* @param {Function} [callback] - The function called when the stream is finished.
+	*/
+
+	end (data, ...args) {
+		return end.call(this, data, ...args);
+	}
+
+	/**
+	* Redirects to a URL path, with a customizable status code. If not specified, status defaults to “302 “Found”.
+	* @param {Number} [status=302] - The HTTP response status code.
+	* @param {String} [path] - The URL path to redirect to.
+	* @returns {Server}
+	*/
+
+	redirect (...args) {
+		return redirect.call(this, ...args);
+	}
+
+	/**
+	* Send the HTTP response status, headers, and body, and end the response.
+	* @param {Number} [status=200] - The HTTP response status code.
+	* @param {Number} [headers] - The HTTP response headers.
+	* @param {Buffer|Promise|*} [body] - The HTTP response body.
+	* @returns {Server}
+	*/
+
+	send (...args) {
+		return send.call(this, ...args);
+	}
+
+	/**
+	* Streams a local file from a given path. Sets `Content-Length`, `Content-Type`, `Date`, and `Last-Modified` headers.
+	* @param {String} path - The path used to resolve the local file.
+	* @param {Object} [opts] - Additional configuration resolving the local file.
+	* @param {Object} [opts.from = '.'] - The directory used to resolve the local file.
+	* @param {Object} [opts.index = 'index.html'] - The index basename used to resolve directories.
+	* @param {Object} [opts.headers] - Additional HTTP response headers.
+	* @param {Function} [opts.use] - The function used to process the local file.
+	* @async
+	* @returns {ServerResponse} A promise resolving with the current {@link ServerResponse} once the file has been streamed.
+	*/
+
+	sendFile (path, ...args) {
+		return sendFile.call(this, path, ...args);
+	}
+
+	/**
+	* Send the HTTP response body as CSS and end the response.
+	* @param {Buffer|Promise|*} [css] - The HTTP response body sent as CSS.
+	* @param {Object} [opts] - Additional configuration.
+	* @param {Object} [opts.headers] - Additional configuration.
+	* @param {Number} [opts.status=200] - The HTTP response status code.
+	* @returns {Server}
+	*/
+
+	sendCSS (css, opts) {
+		return sendType.call(this, 'css', css, opts);
+	}
+
+	/**
+	* Send the HTTP response body as HTML and end the response.
+	* @param {String} [html] - The HTTP response body as HTML.
+	* @param {Object} [opts] - Additional configuration.
+	* @param {Object} [opts.headers] - Additional configuration.
+	* @param {Number} [opts.status=200] - The HTTP response status code.
+	* @returns {Server}
+	*/
+
+	sendHTML (html, opts) {
+		return sendType.call(this, 'html', html, opts);
+	}
+
+	/**
+	* Send the HTTP response body as JavaScript and end the response.
+	* @param {String} [js] - The HTTP response body as JavaScript.
+	* @param {Object} [opts] - Additional configuration.
+	* @param {Object} [opts.headers] - Additional configuration.
+	* @param {Number} [opts.status=200] - The HTTP response status code.
+	* @returns {Server}
+	*/
+
+	sendJS (js, opts) {
+		return sendType.call(this, 'js', js, opts);
+	}
+
+	/**
+	* Send the HTTP response body as JSON and end the response.
+	* @param {*} [json] - The HTTP response to be stringified as JSON.
+	* @param {Object} [opts] - Additional configuration for stringification.
+	* @param {Object} [opts.headers] - ...
+	* @param {Function} [opts.replacer] - The function to customize the JSON stringification process.
+	* @param {Number|String} [opts.space=2] - The white space used by the JSON stringification process.
+	* @param {Number} [opts.status=200] - The HTTP response status code.
+	* @returns {Server}
+	*/
+
+	sendJSON (json, opts) {
+		return sendType.call(this, 'json', json, opts);
+	}
+
+	/**
+	* Send the HTTP response status, headers, and body as a specific content type, and end the response.
+	* @param {Number} extension - The extension used to determine the content-type.
+	* @param {Buffer|Promise|*} body - The HTTP response body.
+	* @param {Object} [opts] - Additional configuration.
+	* @param {Object} [opts.headers] - Additional HTTP response headers.
+	* @param {Number} [opts.status=200] - The HTTP response status code.
+	* @returns {Server}
+	*/
+
+	sendType (extension, body, opts) {
+		return sendType.call(this, extension, body, opts);
+	}
+
+	/**
+	* Define a to-be-sent header.
+	* @returns {Server}
+	*/
+
+	setHeader (name, value) {
+		setHeader.call(this, name, value);
+
+		return this;
+	}
+
+	/**
+	* Define to-be-sent headers.
+	* @returns {Server}
+	*/
+
+	setHeaders (...args) {
+		return setHeaders.call(this, ...args);
+	}
+
+	/**
+	* Set the HTTP status for the response.
+	* @param {Number} [status=200] - The HTTP response status code.
+	* @returns {Server}
+	*/
+
+	setStatus (status) {
+		setStatus.call(this, status);
+
+		return this;
+	}
+
+	/**
+	* Set the status message for the response.
+	* @param {String} [message] - The status message.
+	* @returns {Server}
+	*/
+
+	setStatusMessage (status) {
+		setStatusMessage.call(this, status);
+
+		return this;
+	}
+
+	/**
+	* Send the HTTP response status, headers, and body.
+	* @param {Buffer|Promise|*} [data] - The HTTP response body.
+	* @param {String} [encoding] - The character encoding of the data.
+	* @param {Function} [callback] - The function called when the data is flushed.
+	*/
+
+	write (data, ...args) {
+		return write.call(this, data, ...args);
+	}
+
+	/**
+	* Sends a response header to the request.
+	* @param {Number} status - The HTTP response status code.
+	* @param {String} [statusMessage] - The status message sent to the client.
+	* @param {Object} [headers] - Additional HTTP response headers.
+	* @returns {Server}
+	* @example
+	* response.writeHead(200, {
+	*  'Content-Length': 0,
+	*  contentType: 'text/plain'
+	* })
+	*/
+
+	writeHead (status, ...args) {
+		return writeHead.call(this, status, ...args);
+	}
+}
+
+export default ServerResponse;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.2</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+    
+</body>
+</html>
