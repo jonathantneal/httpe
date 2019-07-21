@@ -31,24 +31,24 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "mime-types": "^2.1.24",
+    "mime-db": "^1.40.0",
     "selfsigned": "^1.10.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
-    "@babel/plugin-proposal-class-properties": "^7.4.4",
-    "@babel/preset-env": "^7.4.5",
-    "babel-eslint": "^10.0.1",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-eslint": "^10.0.2",
     "docdash": "^1.1.1",
     "eclint": "^2.8.1",
-    "eslint": "^5.16.0",
+    "eslint": "^6.1.0",
     "gzip-size": "^5.1.1",
-    "jsdoc": "^3.6.2",
+    "jsdoc": "^3.6.3",
     "nodemon": "^1.19.1",
     "phtml": "^4.1.0",
-    "rollup": "^1.12.4",
-    "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-terser": "^5.0.0"
+    "rollup": "^1.17.0",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-terser": "^5.1.1"
   },
   "keywords": []
 }

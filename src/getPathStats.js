@@ -1,5 +1,5 @@
 import fs from 'fs';
-import mimeTypes from 'mime-types';
+import { byPath } from './lib/mime';
 import p from 'path';
 
 /**
@@ -42,9 +42,10 @@ export default function getPathStats (path, opts) {
 			} else {
 				const lastModified = new Date(stats.mtimeMs).toUTCString();
 				const contentLength = stats.size;
-				const mimeType = mimeTypes.lookup(path) || null;
-				const charset = mimeTypes.charset(mimeType);
-				const contentType = mimeTypes.contentType(mimeType) || null;
+				const data = byPath(path);
+				const charset = data.charset || null;
+				const contentType = data.content || null;
+				const mimeType = data.mime || null;
 
 				Object.assign(stats, { charset, contentLength, contentType, lastModified, mimeType, path })
 

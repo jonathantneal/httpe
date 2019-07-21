@@ -1,7 +1,7 @@
 import { parse as parseAsURL, URLSearchParams } from 'url';
 import getRequestFromPath from './lib/getRequestFromPath';
 import http from 'http';
-import mimeTypes from 'mime-types';
+import { charsetByPath, contentByPath, mimeByPath } from './lib/mime';
 
 /**
 * @name IncomingMessage
@@ -71,7 +71,7 @@ class IncomingMessage extends http.IncomingMessage {
 	*/
 
 	get charset () {
-		return mimeTypes.charset(mimeTypes.lookup(this.pathname)) || null;
+		return charsetByPath(this.pathname);
 	}
 
 	/**
@@ -82,7 +82,7 @@ class IncomingMessage extends http.IncomingMessage {
 	*/
 
 	get contentType () {
-		return mimeTypes.contentType(this.mimeType) || null;
+		return contentByPath(this.pathname);
 	}
 
 	/**
@@ -93,7 +93,7 @@ class IncomingMessage extends http.IncomingMessage {
 	*/
 
 	get mimeType () {
-		return mimeTypes.lookup(this.pathname) || null;
+		return mimeByPath(this.pathname);
 	}
 }
 

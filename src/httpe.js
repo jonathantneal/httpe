@@ -3,7 +3,7 @@ import getPathStats from './getPathStats';
 import https from 'https';
 import IncomingMessage from './IncomingMessage';
 import isPortAvailable from './isPortAvailable';
-import mimeTypes from 'mime-types';
+import { charsetByPath, contentByPath, mimeByPath } from './lib/mime';
 import os from 'os';
 import Server from './Server';
 import ServerResponse from './ServerResponse';
@@ -65,7 +65,7 @@ const httpe = {
 	*/
 
 	getCharset (path) {
-		return mimeTypes.charset(mimeTypes.lookup(path)) || null;
+		return charsetByPath(path);
 	},
 
 	/**
@@ -79,7 +79,7 @@ const httpe = {
 	*/
 
 	getContentType (path) {
-		return mimeTypes.contentType(mimeTypes.lookup(path)) || null;
+		return contentByPath(path);
 	},
 
 	/**
@@ -120,7 +120,7 @@ const httpe = {
 	*/
 
 	getMimeType (path) {
-		return mimeTypes.lookup(path) || null;
+		return mimeByPath(path);
 	},
 
 	/**

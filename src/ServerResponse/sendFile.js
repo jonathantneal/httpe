@@ -3,6 +3,7 @@ import end from './end';
 import fs from 'fs';
 import getPathStats from '../getPathStats';
 
+// Streams a local file from a given path. Sets `Content-Length`, `Content-Type`, `Date`, and `Last-Modified` headers.
 export default function sendFile (path, ...args) {
 	const opts = Object(args[0])
 
